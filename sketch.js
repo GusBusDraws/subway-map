@@ -31,7 +31,7 @@ let stations = [
 let stationDiameter = 30;
 let lineWidth = stationDiameter / 2;
 let stationDist = 100;
-let structure = [
+let greenPoints = [
   [1, 0], [2, 0], [3, 0],
   [4, 1], [4, 2], [4, 3],
   [3, 4], [2, 4], [1, 4],
@@ -45,68 +45,116 @@ let structure = [
 //   [1, 0], [2, 0], [3, 0],
 //   [4, 1], [4, 2]
 // ]
-let stationLocation = [
+let greenStations = [
   [0, 0, 1, 0, 0],
   [0, 0, 0, 0, 0],
   [1, 0, 0, 0, 1],
   [0, 0, 0, 0, 0],
   [0, 1, 0, 1, 0],
 ]
-let startX, startY;
+let greenLine, yellowLine;
+let lines;
 
 function setup() {
 	console.log('Starting...');
 	createCanvas(windowWidth, windowHeight);
 	background(100);
 	console.log(stations.length);
-	noLoop();
+	// noLoop();
+  greenLine = new SubwayLine();
+	greenLine.startX = width / 2 - 4 * stationDist;
+  greenLine.startY = height / 2 - (4 * stationDist) / 2;
+  greenLine.color = color(0, 255, 0);
+  greenLine.points = [
+    [1, 0], [2, 0], [3, 0],
+    [4, 1], [4, 2], [4, 3],
+    [3, 4], [2, 4], [1, 4],
+    [0, 3], [0, 2], [0, 1],
+    [1, 0]
+  ]
+  greenLine.stations = [
+    [0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0],
+  ]
+  yellowLine = new SubwayLine();
+	yellowLine.startX = width / 2 + lineWidth;
+  yellowLine.startY = height / 2 - (4 * stationDist) / 2;
+  yellowLine.color = color(255, 255, 0);
+  yellowLine.points = [
+    [1, 0], [2, 0], [3, 0],
+    [4, 1], [4, 2], [4, 3],
+    [3, 4], [2, 4], [1, 4],
+    [0, 3], [0, 2], [0, 1],
+    [1, 0]
+  ]
+  yellowLine.stations = [
+    [0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0],
+  ]
+  lines = [greenLine, yellowLine];
 }
 
 function draw() {
     ///////////////////
    // Draw the line //
   ///////////////////
-	startX = width / 2;
-  startY = height / 2;
-  stroke(0, 255, 0);
-  strokeWeight(lineWidth);
-  for (let i = 0; i < structure.length - 1; i++) {
-    let x1 = startX + stationDist * structure[i][0];
-    let y1 = startY + stationDist * structure[i][1];
-    let x2 = startX + stationDist * structure[i + 1][0];
-    let y2 = startY + stationDist * structure[i + 1][1];
-    line(x1, y1, x2, y2);
+  for (let l of lines) {
+    l.drawLine();
   }
     ///////////////////////
    // Draw the stations //
   ///////////////////////
-  noStroke();
-  let i = 0;
-  for (let coord of structure) {
-    let x = coord[0];
-    let y = coord[1];
-    if (stationLocation[y][x] === 1) {
-      let x1 = startX + stationDist * x;
-      let y1 = startY + stationDist * y;
-      drawStation(x1, y1)
-      text(i, x1 + 30, y1 + 30)
-      i++;
+  for (let l of lines) {
+    l.drawStations();
+  }
+}
+
+class SubwayLine {
+  constructor() {
+    this.startX = null;
+    this.startY = null;
+    this.color = null;
+    this.points = [];
+    this.stations = [];
+  }
+  drawLine() {
+    stroke(this.color);
+    strokeWeight(lineWidth);
+    for (let i = 0; i < this.points.length - 1; i++) {
+      let x1 = this.startX + stationDist * this.points[i][0];
+      let y1 = this.startY + stationDist * this.points[i][1];
+      let x2 = this.startX + stationDist * this.points[i + 1][0];
+      let y2 = this.startY + stationDist * this.points[i + 1][1];
+      line(x1, y1, x2, y2);
     }
   }
-}
-
-class Station {
-  constructor() {
-    this.x = random(width);
-    this.y = random(height);
+  drawStations() {
+    noStroke();
+    let i = 0;
+    for (let coord of this.points) {
+      let x = coord[0];
+      let y = coord[1];
+      if (this.stations[y][x] === 1) {
+        let x1 = this.startX + stationDist * x;
+        let y1 = this.startY + stationDist * y;
+        this.drawStation(x1, y1)
+        text(i, x1 + 30, y1 + 30)
+        i++;
+      }
+    }
   }
-}
-
-function drawStation(x, y) {
-	fill(0);
-  circle(x, y, stationDiameter);
-	fill(255);
-  circle(x, y, stationDiameter / 2);
+  drawStation(x, y) {
+    fill(0);
+    circle(x, y, stationDiameter);
+    fill(255);
+    circle(x, y, stationDiameter / 2);
+  }
 }
 
 function drawConnection(selectionIdx) {

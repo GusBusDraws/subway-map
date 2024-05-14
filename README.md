@@ -22,6 +22,8 @@ npm install @types/p5
 ```
 
 ## Change Log
+### 2024-03-04
+- Test a coordinate and array structure for lines
 ### 2024-01-30
 - Ignore Node packages
 - Add jsconfig for global p5 completion
