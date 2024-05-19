@@ -24,6 +24,7 @@ npm install @types/p5
 ## Change Log
 
 ### 2024-05-19
+- Add `drawOverlappingStations` to draw only one station when it is shared across multiple lines
 - Add `keyPressed` command for saving progress images when 's' is typed
 - Add `checkStationOverlap` to return list of overlapping station data
 - Change station structure to use index of line instead of trying to match the shape
