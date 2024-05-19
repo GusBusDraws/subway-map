@@ -73,11 +73,11 @@ function setup() {
     [1, 0]
   ]
   greenLine.stations = [
-    [0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0],
+    0, 1, 0,
+    0, 1, 0,
+    1, 0, 1,
+    0, 1, 0,
+    0
   ]
   yellowLine = new SubwayLine();
 	yellowLine.startX = width / 2 + lineWidth;
@@ -91,11 +91,11 @@ function setup() {
     [1, 0]
   ]
   yellowLine.stations = [
-    [0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 0],
+    0, 1, 0,
+    0, 1, 0,
+    0, 1, 0,
+    0, 1, 0,
+    0
   ]
   lines = [greenLine, yellowLine];
 }
@@ -137,16 +137,16 @@ class SubwayLine {
   drawStations() {
     noStroke();
     let i = 0;
-    for (let coord of this.points) {
-      let x = coord[0];
-      let y = coord[1];
-      if (this.stations[y][x] === 1) {
+    for (let station_bool of this.stations) {
+      let x = this.points[i][0];
+      let y = this.points[i][1];
+      if (station_bool === 1) {
         let x1 = this.startX + stationDist * x;
         let y1 = this.startY + stationDist * y;
         this.drawStation(x1, y1)
         text(i, x1 + 30, y1 + 30)
-        i++;
       }
+      i++;
     }
   }
   drawStation(x, y) {
