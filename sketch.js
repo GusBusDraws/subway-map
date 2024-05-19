@@ -228,3 +228,9 @@ function getLocationByName(l, stationName) {
   return stationLoc
 }
 
+function keyPressed() {
+  if (key === 's') {
+    saveCanvas('smallweb-subway-progress.png')
+  }
+}
+
