@@ -31,27 +31,6 @@ let stations = [
 let stationDiameter = 30;
 let lineWidth = stationDiameter / 2;
 let stationDist = 100;
-let greenPoints = [
-  [1, 0], [2, 0], [3, 0],
-  [4, 1], [4, 2], [4, 3],
-  [3, 4], [2, 4], [1, 4],
-  [0, 3], [0, 2], [0, 1],
-  [1, 0]
-]
-// let structure = [
-//   [4, 2], [4, 3],
-//   [3, 4], [2, 4], [1, 4],
-//   [0, 3], [0, 2], [0, 1],
-//   [1, 0], [2, 0], [3, 0],
-//   [4, 1], [4, 2]
-// ]
-let greenStations = [
-  [0, 0, 1, 0, 0],
-  [0, 0, 0, 0, 0],
-  [1, 0, 0, 0, 1],
-  [0, 0, 0, 0, 0],
-  [0, 1, 0, 1, 0],
-]
 let greenLine, yellowLine;
 let lines;
 
