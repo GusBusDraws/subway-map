@@ -157,11 +157,3 @@ class SubwayLine {
   }
 }
 
-function drawConnection(selectionIdx) {
-	stroke(255, 0, 0);
-	strokeWeight(5);
-	let selectedStation = stations[selectionIdx];
-	let prevStationIdx = selectedStationIdcs[selectedStationIdcs.length - 2]
-	let prevStation = stations[prevStationIdx];
-	line(selectedStation.x, selectedStation.y, prevStation.x, prevStation.y);
-}
