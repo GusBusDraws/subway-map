@@ -24,6 +24,7 @@ npm install @types/p5
 ## Change Log
 
 ### 2024-05-24
+- Add info box on hover
 - Add station highlight on hover
 ### 2024-05-19
 - Add `drawOverlappingStations` to draw only one station when it is shared across multiple lines
