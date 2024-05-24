@@ -62,6 +62,7 @@ let lines;
 let overlappingStations;
 let overlapData;
 let hoverWeight = stationDiameter / 8;
+let currentBox;
 
 function setup() {
 	console.log('Starting...');
@@ -130,7 +131,11 @@ function setup() {
 function draw() {
 	background(100);
   drawMap(lines);
-  checkStationHover(lines);
+  // checkStationHover(lines);
+  if (currentBox != null) {
+    console.log('Drawing currentBox')
+    drawStationBox();
+  }
 }
 
 function drawMap(lines) {
@@ -177,9 +182,54 @@ function checkStationHover(lines) {
         onHover(stationX, stationY, title, url, author);
         // If mouse is clicked while hovering, open the corresponding url
         if (mouseIsPressed) {
-          window.open('https://'+url)
+          console.log('Station clicked')
+          window.open('https://'+url);
+          mouseIsPressed = false;
+          // onStationClick(stationX, stationY, title, url, author);
+          // if (currentBox != null && currentBox[3] === url) {
+          //   console.log('Visiting site')
+          // } else {
+          //   console.log('Setting currentBox')
+          //   currentBox = onStationClick(stationX, stationY, title, url, author);
+          // }
         }
       }
+    }
+  }
+}
+
+function mouseReleased() {
+  for (let l of lines) {
+    for (let i = 0; i < l.stationIdcs.length; i++) {
+      let pt = l.points[i]
+      let stationIdx = l.stationIdcs[i]
+      let title = l.titles[stationIdx]
+      let url = l.urls[stationIdx]
+      let author = l.authors[stationIdx]
+      let stationX;
+      let stationY;
+      // Check if station is an overlapping station
+      if (overlappingStations.includes(url)) {
+        let overlapIdx = overlappingStations.indexOf(url);
+        let station = overlapData[overlapIdx];
+        [stationX, stationY] = getOverlappingStationCoord(station)
+      } else {
+        stationX = l.startX + stationDist * pt[0];
+        stationY = l.startY + stationDist * pt[1];
+      }
+      let mouseDist = dist(mouseX, mouseY, stationX, stationY);
+      // If mouse is within the radius of a station AND the station index is
+      // non-zero, i.e. a station point and not a line point, set the station
+      // bow to be drawn by drawStationBox()
+      if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
+        onStationClick(stationX, stationY, title, url, author);
+      }
+      // I would like this to de-select the station only when the mouse is
+      // clicked off station, but it deselects the station before, I think
+      // because each click is checked against all the stations
+      // else {
+      //   offStationClick();
+      // }
     }
   }
 }
@@ -333,6 +383,58 @@ function onHover(stationX, stationY, title, url, author) {
   textAlign(LEFT, TOP)
   text(title + ' by ' +author, boxX + 10, boxY + 10)
   text(url, boxX + 10, boxY + 30)
+}
+
+function onStationClick(stationX, stationY, title, url, author) {
+  if (currentBox != null && currentBox[3] === url) {
+    // BUG: overlapping stations are immediately opened. Instead of this
+    // double click situation, maybe it would be better to open the site when
+    // the box is clicked
+    console.log('Visiting site')
+    window.open('https://'+url)
+  } else {
+    console.log('Setting currentBox')
+    currentBox = [stationX, stationY, title, url, author];
+  }
+}
+
+function offStationClick() {
+  currentBox = null;
+}
+
+
+function drawStationBox() {
+  let [stationX, stationY, title, url, author] = currentBox
+  removeElements();
+  strokeWeight(hoverWeight);
+  stroke(255);
+  fill(0, 0);
+  circle(stationX, stationY, stationDiameter + hoverWeight);
+  fill(255);
+  let boxW = 300;
+  let boxH = 50;
+  let boxX;
+  let boxY;
+  if (stationX + boxW < width) {
+    boxX = stationX
+  } else {
+    boxX = stationX - boxW
+  }
+  if (stationY + 30 + boxH < height) {
+    boxY = stationY + 30
+  } else {
+    boxY = stationY - boxH - 30
+  }
+  rect(boxX, boxY, 300, 50);
+  noStroke();
+  fill(0);
+  textFont('Consolas')
+  textStyle(BOLD)
+  textAlign(LEFT, TOP)
+  text(title + ' by ' +author, boxX + 10, boxY + 10)
+  text(url, boxX + 10, boxY + 30);
+  // let a = createA('https://'+url, url, '_blank');
+  // a.position(boxX + 10, boxY + 50);
 }
 
 function keyPressed() {

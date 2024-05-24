@@ -24,6 +24,7 @@ npm install @types/p5
 ## Change Log
 
 ### 2024-05-24
+- Replace hover box with box when clicked
 - Link to station URL when clicked while hovering
 - Make position of info box dynamic
 - Add info box on hover
