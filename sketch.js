@@ -307,8 +307,20 @@ function onHover(stationX, stationY, title, url, author) {
   fill(0, 0);
   circle(stationX, stationY, stationDiameter + hoverWeight);
   fill(255);
-  let boxX = stationX + 30
-  let boxY = stationY + 30
+  let boxW = 300;
+  let boxH = 50;
+  let boxX;
+  let boxY;
+  if (stationX + boxW < width) {
+    boxX = stationX
+  } else {
+    boxX = stationX - boxW
+  }
+  if (stationY + 30 + boxH < height) {
+    boxY = stationY + 30
+  } else {
+    boxY = stationY - boxH - 30
+  }
   rect(boxX, boxY, 300, 50);
   noStroke();
   fill(0);

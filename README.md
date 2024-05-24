@@ -24,6 +24,7 @@ npm install @types/p5
 ## Change Log
 
 ### 2024-05-24
+- Make position of info box dynamic
 - Add info box on hover
 - Add station highlight on hover
 ### 2024-05-19
