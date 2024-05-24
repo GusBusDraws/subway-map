@@ -175,6 +175,10 @@ function checkStationHover(lines) {
       let mouseDist = dist(mouseX, mouseY, stationX, stationY);
       if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
         onHover(stationX, stationY, title, url, author);
+        // If mouse is clicked while hovering, open the corresponding url
+        if (mouseIsPressed) {
+          window.open('https://'+url)
+        }
       }
     }
   }
