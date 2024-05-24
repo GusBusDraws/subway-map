@@ -1,6 +1,6 @@
 // @ts-check
 /// <reference path="./node_modules/@types/p5/global.d.ts" />
-let stations = [
+let greenStations = [
   {
     "name" : "DoodleBot",
     "url" : "gusbus.space/doodlebot/",
@@ -10,6 +10,11 @@ let stations = [
     "name" : "Doodles",
     "url" : "jazz-dude.com/Portfolio/doodles.html",
     "owner" : "Jazz"
+  },
+  {
+    "name" : "Smallweb Subway",
+    "url" : "gusbus.space/smallweb-subway/",
+    "owner" : "Gus Becker"
   },
   {
     "name" : "Doodles",
@@ -27,6 +32,28 @@ let stations = [
     "owner" : "Yamasztuka"
   }
 ];
+let yellowStations = [
+  {
+    "name" : "Creatives Club",
+    "url" : "creativesclub.art",
+    "owner" : "Gus Becker"
+  },
+  {
+    "name" : "urlocalcyb.org",
+    "url" : "urlocalcyb.org",
+    "owner" : "cyborgforty"
+  },
+  {
+    "name" : "haystack blog and oddities",
+    "url" : "thatoddhaystack.neocities.org",
+    "owner" : "vita"
+  },
+  {
+    "name" : "Smallweb Subway",
+    "url" : "gusbus.space/smallweb-subway/",
+    "owner" : "Gus Becker"
+  }
+];
 let stationDiameter = 30;
 let lineWidth = stationDiameter / 2;
 let stationDist = 100;
@@ -39,9 +66,7 @@ function setup() {
 	console.log('Starting...');
 	// createCanvas(windowWidth, windowHeight);
 	createCanvas(1000, 500);
-	background(100);
-	console.log(stations.length);
-	noLoop();
+	// noLoop();
   greenLine = new SubwayLine();
 	greenLine.name = 'green'
 	greenLine.startX = width / 2 - 4 * stationDist;
@@ -55,15 +80,19 @@ function setup() {
     [1, 0]
   ]
   greenLine.stationIdcs = [
-    -1,  0, -1,
-    -1,  1, -1,
-     2, -1,  3,
-    -1,  4, -1,
+     0, -1,  1,
+    -1,  2, -1,
+     3, -1,  4,
+    -1,  5, -1,
     -1
   ]
-  greenLine.stationNames = [
-    'A', 'B', 'C', 'D', 'E'
-  ]
+  // greenLine.stationNames = [
+  //   'A', 'B', 'C', 'D', 'E'
+  // ]
+  // Populate Green Line station names from JSON
+  for (let station of greenStations) {
+    greenLine.stationNames.push(station.url)
+  }
   yellowLine = new SubwayLine();
 	yellowLine.name = 'yellow'
 	yellowLine.startX = width / 2 + lineWidth;
@@ -83,13 +112,23 @@ function setup() {
     -1,  3, -1,
     -1
   ]
-  yellowLine.stationNames = [
-    'F', 'G', 'H', 'B'
-  ]
+  // yellowLine.stationNames = [
+  //   'F', 'G', 'H', 'B'
+  // ]
+  // Populate Yellow Line station names from JSON
+  for (let station of yellowStations) {
+    yellowLine.stationNames.push(station.url)
+  }
   lines = [greenLine, yellowLine];
 }
 
 function draw() {
+	background(100);
+  drawMap(lines);
+  checkStationHover(lines);
+}
+
+function drawMap(lines) {
     ///////////////////
    // Draw the line //
   ///////////////////
@@ -97,8 +136,6 @@ function draw() {
     l.drawLine();
   }
   [overlappingStations, overlapData] = checkStationOverlap(lines)
-  console.log(overlappingStations)
-  console.log(overlapData)
     ///////////////////////
    // Draw the stations //
   ///////////////////////
@@ -109,6 +146,38 @@ function draw() {
    // Draw overlapping stations //
   ///////////////////////////////
   drawOverlappingStations(overlapData)
+}
+
+function checkStationHover(lines) {
+  let hoverWeight = stationDiameter / 8
+  for (let l of lines) {
+    for (let i = 0; i < l.stationIdcs.length; i++) {
+      let pt = l.points[i]
+      let stationIdx = l.stationIdcs[i]
+      let name = l.stationNames[stationIdx]
+      let stationX;
+      let stationY;
+      // stationX = l.startX + stationDist * pt[0];
+      // stationY = l.startY + stationDist * pt[1];
+      // Check if station is an overlapping station
+      if (overlappingStations.includes(name)) {
+        let overlapIdx = overlappingStations.indexOf(name);
+        let station = overlapData[overlapIdx];
+        [stationX, stationY] = getOverlappingStationCoord(station)
+      } else {
+        stationX = l.startX + stationDist * pt[0];
+        stationY = l.startY + stationDist * pt[1];
+      }
+      let mouseDist = dist(mouseX, mouseY, stationX, stationY);
+      if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
+        console.log('Hover detected: '+name)
+        strokeWeight(hoverWeight);
+        stroke(255);
+        fill(0, 0);
+        circle(stationX, stationY, stationDiameter + hoverWeight);
+      }
+    }
+  }
 }
 
 class SubwayLine {
@@ -164,9 +233,7 @@ function checkStationOverlap(lines) {
   let overlapData = []
   let overlapDataIdx = null;
   for (let l1 of lines) {
-    console.log('l1 = '+l1.name)
     for (let l2 of lines) {
-      console.log('l2 = '+l2.name)
       if (l1.name != l2.name) {
         for (let stationName of l1.stationNames) {
           if (l2.stationNames.includes(stationName)) {
@@ -176,9 +243,6 @@ function checkStationOverlap(lines) {
               // stored in the same object in overlapData
               overlapStationNames.push(stationName)
               let l1Loc = getLocationByName(l1, stationName)
-              console.log(
-                'Overlapping station found on '+l1.name+' line at '+l1Loc
-              )
               overlapData.push(
                 {
                   'station' : stationName,
@@ -195,9 +259,6 @@ function checkStationOverlap(lines) {
             overlapDataIdx = overlapStationNames.indexOf(stationName)
             if (!overlapData[overlapDataIdx]['lines'].includes(l2.name)) {
               let l2Loc = getLocationByName(l2, stationName)
-              console.log(
-                'Overlapping station found on '+l2.name+' line at '+l2Loc
-              )
               overlapData[overlapDataIdx]['lines'].push(l2.name)
               overlapData[overlapDataIdx]['points'].push(l2Loc)
             }
@@ -222,17 +283,21 @@ function getLocationByName(l, stationName) {
 
 function drawOverlappingStations(overlapData) {
   for (let station of overlapData) {
-    let avgX = 0;
-    let avgY = 0;
-    for (let pt of station.points) {
-      avgX += pt[0];
-      avgY += pt[1];
-    }
-    avgX /= station.points.length
-    avgY /= station.points.length
-    console.log(avgX, avgY)
+    let [avgX, avgY] = getOverlappingStationCoord(station);
     drawStation(avgX, avgY, station.station)
   }
+}
+
+function getOverlappingStationCoord(station) {
+  let avgX = 0;
+  let avgY = 0;
+  for (let pt of station.points) {
+    avgX += pt[0];
+    avgY += pt[1];
+  }
+  avgX /= station.points.length
+  avgY /= station.points.length
+  return [avgX, avgY]
 }
 
 function keyPressed() {
