@@ -1,6 +1,6 @@
 // @ts-check
 /// <reference path="./node_modules/@types/p5/global.d.ts" />
-let greenStations = [
+let greenJSON = [
   {
     "name" : "DoodleBot",
     "url" : "gusbus.space/doodlebot/",
@@ -32,7 +32,7 @@ let greenStations = [
     "owner" : "Yamasztuka"
   }
 ];
-let yellowStations = [
+let yellowJSON = [
   {
     "name" : "Creatives Club",
     "url" : "creativesclub.art",
@@ -68,8 +68,8 @@ function setup() {
 	console.log('Starting...');
 	// createCanvas(windowWidth, windowHeight);
 	createCanvas(1000, 500);
-	// noLoop();
-  greenLine = new SubwayLine();
+	noLoop();
+  greenLine = new SubwayLine(greenJSON);
 	greenLine.name = 'green'
 	greenLine.startX = width / 2 - 4 * stationDist;
   greenLine.startY = height / 2 - (4 * stationDist) / 2;
@@ -92,12 +92,12 @@ function setup() {
   //   'A', 'B', 'C', 'D', 'E'
   // ]
   // Populate Green Line station names from JSON
-  for (let station of greenStations) {
+  for (let station of greenJSON) {
     greenLine.titles.push(station.name)
     greenLine.urls.push(station.url)
     greenLine.authors.push(station.owner)
   }
-  yellowLine = new SubwayLine();
+  yellowLine = new SubwayLine(yellowJSON);
 	yellowLine.name = 'yellow'
 	yellowLine.startX = width / 2 + lineWidth;
   yellowLine.startY = height / 2 - (4 * stationDist) / 2;
@@ -120,7 +120,7 @@ function setup() {
   //   'F', 'G', 'H', 'B'
   // ]
   // Populate Yellow Line station names from JSON
-  for (let station of yellowStations) {
+  for (let station of yellowJSON) {
     yellowLine.titles.push(station.name)
     yellowLine.urls.push(station.url)
     yellowLine.authors.push(station.owner)
@@ -200,6 +200,42 @@ function checkStationHover(lines) {
 
 function mouseReleased() {
   for (let l of lines) {
+    let isFound = false;
+    let  positionIdx = 0;
+    while (!isFound) {
+      let pt = l.points[positionIdx]
+      let stationIdx = l.stationIdcs[positionIdx]
+      let title = l.titles[stationIdx]
+      let url = l.urls[stationIdx]
+      let author = l.authors[stationIdx]
+      let stationX;
+      let stationY;
+      // Check if station is an overlapping station
+      if (overlappingStations.includes(url)) {
+        let overlapIdx = overlappingStations.indexOf(url);
+        let station = overlapData[overlapIdx];
+        [stationX, stationY] = getOverlappingStationCoord(station)
+      } else {
+        stationX = l.startX + stationDist * pt[0];
+        stationY = l.startY + stationDist * pt[1];
+      }
+      let mouseDist = dist(mouseX, mouseY, stationX, stationY);
+      // If mouse is within the radius of a station AND the station index is
+      // non-zero, i.e. a station point and not a line point, set the station
+      // bow to be drawn by drawStationBox()
+      if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
+        onStationClick(stationX, stationY, title, url, author);
+      }
+      // I would like this to de-select the station only when the mouse is
+      // clicked off station, but it deselects the station before, I think
+      // because each click is checked against all the stations
+      // else {
+      //   offStationClick();
+      // }
+    }
+  }
+  if (false) {
+  // for (let l of lines) {
     for (let i = 0; i < l.stationIdcs.length; i++) {
       let pt = l.points[i]
       let stationIdx = l.stationIdcs[i]
@@ -235,7 +271,7 @@ function mouseReleased() {
 }
 
 class SubwayLine {
-  constructor() {
+  constructor(propJSON) {
     this.name = null;
     this.startX = null;
     this.startY = null;
@@ -245,7 +281,20 @@ class SubwayLine {
     this.titles = [];
     this.urls = [];
     this.authors = [];
+    this.stations = []
+    for (let i = 0; i < propJSON.length; i++) {
+      this.stations.push(
+        {
+          'name' : propJSON[i].name,
+          'url' : propJSON[i].url,
+          'owner' : propJSON[i].owner,
+          'location' : null,
+          'isOverlapping' : null
+        }
+      )
+    }
   }
+
   drawLine() {
     stroke(this.color);
     strokeWeight(lineWidth);
@@ -262,13 +311,22 @@ class SubwayLine {
     let idxAlongLine = 0;
     for (let stationIdx of this.stationIdcs) {
       let stationURL = this.urls[stationIdx]
-      if (!overlappingStations.includes(stationURL)) {
+      // stationIdx will have a non-negative value if that location along the
+      // line corresponds to a station. That value is the
+      // position of the corresponding station in the SubwayLine.stations
+      // properties array
+      if (stationIdx >= 0) {
         let x = this.points[idxAlongLine][0];
         let y = this.points[idxAlongLine][1];
-        if (stationIdx >= 0) {
+        if (!overlappingStations.includes(stationURL)) {
+          this.stations[stationIdx].isOverlapping = false
           let x1 = this.startX + stationDist * x;
           let y1 = this.startY + stationDist * y;
+          this.stations[stationIdx].location = [x1, y1]
           drawStation(x1, y1)
+        }
+        else {
+          this.stations[stationIdx].isOverlapping = true
         }
       }
       idxAlongLine++;
@@ -322,6 +380,8 @@ function checkStationOverlap(lines) {
       }
     }
   }
+  console.log('Overlap data:')
+  console.log(overlapData)
   return [overlapStationURLs, overlapData]
 }
 
@@ -340,6 +400,15 @@ function drawOverlappingStations(overlapData) {
   for (let station of overlapData) {
     let [avgX, avgY] = getOverlappingStationCoord(station);
     drawStation(avgX, avgY)
+    // Add location of overlapping station to station properties
+    for (let l of lines) {
+      if (station.lines.includes(l.name)) {
+        let stationIdx = l.urls.indexOf(station.url)
+        l.stations[stationIdx].location = [avgX, avgY]
+      }
+      console.log(l.name + ' line properties:')
+      console.log(l.stations)
+    }
   }
 }
 
