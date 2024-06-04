@@ -22,6 +22,28 @@ npm install @types/p5
 ```
 
 ## Change Log
+
+### 2024-06-04
+- Click to visit works with and without hover (desktop and mobile)
+### 2024-06-03
+- Added hover to view info in addition to click
+- Identify bug making shared website names problematic
+- Fix bug preventing info boxes from being drawn
+### 2024-06-01
+- Add SubwayLine.stations properties to hold info like station locations
+### 2024-05-24
+- Replace hover box with box when clicked
+- Link to station URL when clicked while hovering
+- Make position of info box dynamic
+- Add info box on hover
+- Add station highlight on hover
+### 2024-05-19
+- Add `drawOverlappingStations` to draw only one station when it is shared across multiple lines
+- Add `keyPressed` command for saving progress images when 's' is typed
+- Add `checkStationOverlap` to return list of overlapping station data
+- Change station structure to use index of line instead of trying to match the shape
+### 2024-03-04
+- Test a coordinate and array structure for lines
 ### 2024-01-30
 - Ignore Node packages
 - Add jsconfig for global p5 completion

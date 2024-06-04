@@ -13,4 +13,3 @@ function keyPressed() {
       resetSketch();
     }
   }
-  
