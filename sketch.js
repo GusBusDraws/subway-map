@@ -7,7 +7,7 @@ let greenJSON = [
     "owner" : "Gus Becker"
   },
   {
-    "name" : "Doodles",
+    "name" : "Jazz's Doodles",
     "url" : "jazz-dude.com/Portfolio/doodles.html",
     "owner" : "Jazz"
   },
@@ -17,7 +17,7 @@ let greenJSON = [
     "owner" : "Gus Becker"
   },
   {
-    "name" : "Doodles",
+    "name" : "Megan's Doodles",
     "url" : "art.bymegan.com/doodles.html",
     "owner" : "Megan Chesterton"
   },
@@ -63,12 +63,13 @@ let overlappingStations;
 let overlapData;
 let hoverWeight = stationDiameter / 8;
 let currentBox;
+let selection;
 
 function setup() {
 	console.log('Starting...');
+	// noLoop();
 	// createCanvas(windowWidth, windowHeight);
 	createCanvas(1000, 500);
-	noLoop();
   greenLine = new SubwayLine(greenJSON);
 	greenLine.name = 'green'
 	greenLine.startX = width / 2 - 4 * stationDist;
@@ -93,9 +94,9 @@ function setup() {
   // ]
   // Populate Green Line station names from JSON
   for (let station of greenJSON) {
-    greenLine.titles.push(station.name)
+    greenLine.names.push(station.name)
     greenLine.urls.push(station.url)
-    greenLine.authors.push(station.owner)
+    greenLine.owners.push(station.owner)
   }
   yellowLine = new SubwayLine(yellowJSON);
 	yellowLine.name = 'yellow'
@@ -121,9 +122,9 @@ function setup() {
   // ]
   // Populate Yellow Line station names from JSON
   for (let station of yellowJSON) {
-    yellowLine.titles.push(station.name)
+    yellowLine.names.push(station.name)
     yellowLine.urls.push(station.url)
-    yellowLine.authors.push(station.owner)
+    yellowLine.owners.push(station.owner)
   }
   lines = [greenLine, yellowLine];
 }
@@ -131,30 +132,23 @@ function setup() {
 function draw() {
 	background(100);
   drawMap(lines);
-  // checkStationHover(lines);
-  if (currentBox != null) {
-    console.log('Drawing currentBox')
-    drawStationBox();
+  if (selection != null) {
+    console.log('Drawing selection')
+    drawInfoBox(selection.lineName, selection.stationName);
   }
 }
 
 function drawMap(lines) {
-    ///////////////////
-   // Draw the line //
-  ///////////////////
+  // Draw the line //
   for (let l of lines) {
     l.drawLine();
   }
   [overlappingStations, overlapData] = checkStationOverlap(lines)
-    ///////////////////////
-   // Draw the stations //
-  ///////////////////////
+  // Draw the stations //
   for (let l of lines) {
     l.drawStations(overlappingStations);
   }
-    ///////////////////////////////
-   // Draw overlapping stations //
-  ///////////////////////////////
+  // Draw overlapping stations //
   drawOverlappingStations(overlapData)
 }
 
@@ -163,9 +157,9 @@ function checkStationHover(lines) {
     for (let i = 0; i < l.stationIdcs.length; i++) {
       let pt = l.points[i]
       let stationIdx = l.stationIdcs[i]
-      let title = l.titles[stationIdx]
+      let name = l.names[stationIdx]
       let url = l.urls[stationIdx]
-      let author = l.authors[stationIdx]
+      let owner = l.owners[stationIdx]
       let stationX;
       let stationY;
       // Check if station is an overlapping station
@@ -179,18 +173,18 @@ function checkStationHover(lines) {
       }
       let mouseDist = dist(mouseX, mouseY, stationX, stationY);
       if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
-        onHover(stationX, stationY, title, url, author);
+        onHover(stationX, stationY, name, url, owner);
         // If mouse is clicked while hovering, open the corresponding url
         if (mouseIsPressed) {
           console.log('Station clicked')
           window.open('https://'+url);
           mouseIsPressed = false;
-          // onStationClick(stationX, stationY, title, url, author);
+          // onStationClick(stationX, stationY, name, url, owner);
           // if (currentBox != null && currentBox[3] === url) {
           //   console.log('Visiting site')
           // } else {
           //   console.log('Setting currentBox')
-          //   currentBox = onStationClick(stationX, stationY, title, url, author);
+          //   currentBox = onStationClick(stationX, stationY, name, url, owner);
           // }
         }
       }
@@ -199,76 +193,72 @@ function checkStationHover(lines) {
 }
 
 function mouseReleased() {
+  let isFound = false;
   for (let l of lines) {
-    let isFound = false;
-    let  positionIdx = 0;
-    while (!isFound) {
-      let pt = l.points[positionIdx]
-      let stationIdx = l.stationIdcs[positionIdx]
-      let title = l.titles[stationIdx]
-      let url = l.urls[stationIdx]
-      let author = l.authors[stationIdx]
-      let stationX;
-      let stationY;
-      // Check if station is an overlapping station
-      if (overlappingStations.includes(url)) {
-        let overlapIdx = overlappingStations.indexOf(url);
-        let station = overlapData[overlapIdx];
-        [stationX, stationY] = getOverlappingStationCoord(station)
-      } else {
-        stationX = l.startX + stationDist * pt[0];
-        stationY = l.startY + stationDist * pt[1];
-      }
-      let mouseDist = dist(mouseX, mouseY, stationX, stationY);
+    for (let stationIdx = 0; stationIdx < l.stations.length; stationIdx++) {
+      let station = l.stations[stationIdx]
+      let mouseDist = dist(
+        mouseX, mouseY, station.location[0], station.location[1]
+      );
       // If mouse is within the radius of a station AND the station index is
       // non-zero, i.e. a station point and not a line point, set the station
       // bow to be drawn by drawStationBox()
-      if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
-        onStationClick(stationX, stationY, title, url, author);
+      if ((mouseDist < stationDiameter / 2)) {
+        // if (currentBox != null && currentBox[3] === station.url) {
+        //   // BUG: overlapping stations are immediately opened. Instead of this
+        //   // double click situation, maybe it would be better to open the site when
+        //   // the box is clicked
+        //   console.log('Visiting site')
+        //   window.open('https://'+station.url)
+        // } else {
+        console.log('Setting selection: ' + station.name)
+        selection = {
+          'lineName' : l.name,
+          'stationName' : station.name
+        }
+        drawInfoBox(l.name, station.name);
+        isFound = true
+        break;
       }
-      // I would like this to de-select the station only when the mouse is
-      // clicked off station, but it deselects the station before, I think
-      // because each click is checked against all the stations
-      // else {
-      //   offStationClick();
-      // }
     }
   }
-  if (false) {
-  // for (let l of lines) {
-    for (let i = 0; i < l.stationIdcs.length; i++) {
-      let pt = l.points[i]
-      let stationIdx = l.stationIdcs[i]
-      let title = l.titles[stationIdx]
-      let url = l.urls[stationIdx]
-      let author = l.authors[stationIdx]
-      let stationX;
-      let stationY;
-      // Check if station is an overlapping station
-      if (overlappingStations.includes(url)) {
-        let overlapIdx = overlappingStations.indexOf(url);
-        let station = overlapData[overlapIdx];
-        [stationX, stationY] = getOverlappingStationCoord(station)
-      } else {
-        stationX = l.startX + stationDist * pt[0];
-        stationY = l.startY + stationDist * pt[1];
-      }
-      let mouseDist = dist(mouseX, mouseY, stationX, stationY);
-      // If mouse is within the radius of a station AND the station index is
-      // non-zero, i.e. a station point and not a line point, set the station
-      // bow to be drawn by drawStationBox()
-      if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
-        onStationClick(stationX, stationY, title, url, author);
-      }
-      // I would like this to de-select the station only when the mouse is
-      // clicked off station, but it deselects the station before, I think
-      // because each click is checked against all the stations
-      // else {
-      //   offStationClick();
-      // }
-    }
+  if (!isFound) {
+    selection = null;
   }
 }
+  // for (let l of lines) {
+  //   for (let i = 0; i < l.stationIdcs.length; i++) {
+  //     let pt = l.points[i]
+  //     let stationIdx = l.stationIdcs[i]
+  //     let name = l.names[stationIdx]
+  //     let url = l.urls[stationIdx]
+  //     let owner = l.owners[stationIdx]
+  //     let stationX;
+  //     let stationY;
+  //     // Check if station is an overlapping station
+  //     if (overlappingStations.includes(url)) {
+  //       let overlapIdx = overlappingStations.indexOf(url);
+  //       let station = overlapData[overlapIdx];
+  //       [stationX, stationY] = getOverlappingStationCoord(station)
+  //     } else {
+  //       stationX = l.startX + stationDist * pt[0];
+  //       stationY = l.startY + stationDist * pt[1];
+  //     }
+  //     let mouseDist = dist(mouseX, mouseY, stationX, stationY);
+  //     // If mouse is within the radius of a station AND the station index is
+  //     // non-zero, i.e. a station point and not a line point, set the station
+  //     // bow to be drawn by drawStationBox()
+  //     if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
+  //       onStationClick(stationX, stationY, name, url, owner);
+  //     }
+  //     // I would like this to de-select the station only when the mouse is
+  //     // clicked off station, but it deselects the station before, I think
+  //     // because each click is checked against all the stations
+  //     // else {
+  //     //   offStationClick();
+  //     // }
+  //   }
+  // }
 
 class SubwayLine {
   constructor(propJSON) {
@@ -278,9 +268,9 @@ class SubwayLine {
     this.color = null;
     this.points = [];
     this.stationIdcs = [];
-    this.titles = [];
+    this.names = [];
     this.urls = [];
-    this.authors = [];
+    this.owners = [];
     this.stations = []
     for (let i = 0; i < propJSON.length; i++) {
       this.stations.push(
@@ -294,7 +284,15 @@ class SubwayLine {
       )
     }
   }
-
+  getStationByName(name) {
+    console.log('getting station by name: '+name)
+    let stationIdx = this.names.indexOf(name)
+    console.log('found stationIdx: '+stationIdx)
+    let station = this.stations[stationIdx]
+    console.log('found station:')
+    console.log(station)
+    return station
+  }
   drawLine() {
     stroke(this.color);
     strokeWeight(lineWidth);
@@ -380,8 +378,6 @@ function checkStationOverlap(lines) {
       }
     }
   }
-  console.log('Overlap data:')
-  console.log(overlapData)
   return [overlapStationURLs, overlapData]
 }
 
@@ -406,8 +402,6 @@ function drawOverlappingStations(overlapData) {
         let stationIdx = l.urls.indexOf(station.url)
         l.stations[stationIdx].location = [avgX, avgY]
       }
-      console.log(l.name + ' line properties:')
-      console.log(l.stations)
     }
   }
 }
@@ -424,7 +418,7 @@ function getOverlappingStationCoord(station) {
   return [avgX, avgY]
 }
 
-function onHover(stationX, stationY, title, url, author) {
+function onHover(stationX, stationY, name, url, owner) {
   strokeWeight(hoverWeight);
   stroke(255);
   fill(0, 0);
@@ -450,11 +444,11 @@ function onHover(stationX, stationY, title, url, author) {
   textFont('Consolas')
   textStyle(BOLD)
   textAlign(LEFT, TOP)
-  text(title + ' by ' +author, boxX + 10, boxY + 10)
+  text(name + ' by ' +owner, boxX + 10, boxY + 10)
   text(url, boxX + 10, boxY + 30)
 }
 
-function onStationClick(stationX, stationY, title, url, author) {
+function onStationClick(stationX, stationY, name, url, owner) {
   if (currentBox != null && currentBox[3] === url) {
     // BUG: overlapping stations are immediately opened. Instead of this
     // double click situation, maybe it would be better to open the site when
@@ -463,7 +457,7 @@ function onStationClick(stationX, stationY, title, url, author) {
     window.open('https://'+url)
   } else {
     console.log('Setting currentBox')
-    currentBox = [stationX, stationY, title, url, author];
+    currentBox = [stationX, stationY, name, url, owner];
   }
 }
 
@@ -472,8 +466,53 @@ function offStationClick() {
 }
 
 
+function drawInfoBox(lineName, stationName) {
+  let selectedLine;
+  for (let l of lines) {
+    if (l.name == lineName) {
+      selectedLine = l
+      break;
+    }
+  }
+  console.log('selectedLine:')
+  console.log(selectedLine)
+  let selectedStation = selectedLine.getStationByName(stationName)
+  console.log('selectedStation:')
+  console.log(selectedStation)
+  let [x, y] = selectedStation.location
+  strokeWeight(hoverWeight);
+  stroke(255);
+  fill(0, 0);
+  circle(x, y, stationDiameter + hoverWeight);
+  fill(255);
+  let boxW = 300;
+  let boxH = 50;
+  let boxX;
+  let boxY;
+  if (x + boxW < width) {
+    boxX = x
+  } else {
+    boxX = x - boxW
+  }
+  if (y + 30 + boxH < height) {
+    boxY = y + 30
+  } else {
+    boxY = y - boxH - 30
+  }
+  rect(boxX, boxY, 300, 50);
+  noStroke();
+  fill(0);
+  textFont('Consolas')
+  textStyle(BOLD)
+  textAlign(LEFT, TOP)
+  text(selectedStation.name + ' by ' +selectedStation.owner, boxX + 10, boxY + 10)
+  text(selectedStation.url, boxX + 10, boxY + 30);
+  // let a = createA('https://'+url, url, '_blank');
+  // a.position(boxX + 10, boxY + 50);
+}
+
 function drawStationBox() {
-  let [stationX, stationY, title, url, author] = currentBox
+  let [stationX, stationY, name, url, owner] = currentBox
   removeElements();
   strokeWeight(hoverWeight);
   stroke(255);
@@ -500,7 +539,7 @@ function drawStationBox() {
   textFont('Consolas')
   textStyle(BOLD)
   textAlign(LEFT, TOP)
-  text(title + ' by ' +author, boxX + 10, boxY + 10)
+  text(name + ' by ' +owner, boxX + 10, boxY + 10)
   text(url, boxX + 10, boxY + 30);
   // let a = createA('https://'+url, url, '_blank');
   // a.position(boxX + 10, boxY + 50);
