@@ -163,7 +163,8 @@ function checkStationHover(lines) {
       if ((mouseDist < stationDiameter / 2)) {
         selection = {
           'lineName' : l.name,
-          'stationName' : station.name
+          'stationName' : station.name,
+          'type' : 'hover'
         }
         drawInfoBox(selection.lineName, selection.stationName)
         // If mouse is clicked while hovering, open the corresponding url
@@ -179,6 +180,8 @@ function checkStationHover(lines) {
           //   currentBox = onStationClick(stationX, stationY, name, url, owner);
           // }
         }
+      } else if (selection != null && selection.type == 'hover') {
+        selection = null
       }
     }
   }
@@ -206,7 +209,8 @@ function mouseReleased() {
         console.log('Setting selection: ' + station.name)
         selection = {
           'lineName' : l.name,
-          'stationName' : station.name
+          'stationName' : station.name,
+          'type' : 'click'
         }
         drawInfoBox(l.name, station.name);
         isFound = true
