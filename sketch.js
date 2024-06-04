@@ -172,13 +172,6 @@ function checkStationHover(lines) {
           console.log('Station clicked')
           window.open('https://'+station.url);
           mouseIsPressed = false;
-          // onStationClick(stationX, stationY, name, url, owner);
-          // if (currentBox != null && currentBox[3] === url) {
-          //   console.log('Visiting site')
-          // } else {
-          //   console.log('Setting currentBox')
-          //   currentBox = onStationClick(stationX, stationY, name, url, owner);
-          // }
         }
       } else if (selection != null && selection.type == 'hover') {
         selection = null
@@ -199,26 +192,36 @@ function mouseReleased() {
       // non-zero, i.e. a station point and not a line point, set the station
       // bow to be drawn by drawStationBox()
       if ((mouseDist < stationDiameter / 2)) {
-        // if (currentBox != null && currentBox[3] === station.url) {
-        //   // BUG: overlapping stations are immediately opened. Instead of this
-        //   // double click situation, maybe it would be better to open the site when
-        //   // the box is clicked
-        //   console.log('Visiting site')
-        //   window.open('https://'+station.url)
-        // } else {
-        console.log('Setting selection: ' + station.name)
-        selection = {
-          'lineName' : l.name,
-          'stationName' : station.name,
-          'type' : 'click'
+        if (selection != null && selection.stationName === station.name) {
+          // let station = getSelectedStation(lines, selection);
+          console.log('Visiting station: '+station.name);
+          window.open('https://'+station.url);
+          mouseIsPressed = false;
+        } else {
+          console.log('Setting selection: ' + station.name)
+          selection = {
+            'lineName' : l.name,
+            'stationName' : station.name,
+            'type' : 'click'
+          }
+          drawInfoBox(l.name, station.name);
+          isFound = true
         }
-        drawInfoBox(l.name, station.name);
-        isFound = true
+      }
+      if (isFound) {
+        // If marked as found, break out of loop through stations
         break;
       }
     }
+    if (isFound) {
+      // If marked as found, break out of loop through lines
+      break;
+    }
   }
   if (!isFound) {
+    // If not marked as found after looping through each station of each line,
+    // set the selection to null. This unselects the last station (or keeps it
+    // unselected) if clicked beyond a station.
     selection = null;
   }
 }
@@ -248,12 +251,8 @@ class SubwayLine {
     }
   }
   getStationByName(name) {
-    console.log('getting station by name: '+name)
     let stationIdx = this.names.indexOf(name)
-    console.log('found stationIdx: '+stationIdx)
     let station = this.stations[stationIdx]
-    console.log('found station:')
-    console.log(station)
     return station
   }
   drawLine() {
@@ -280,13 +279,16 @@ class SubwayLine {
         let x = this.points[idxAlongLine][0];
         let y = this.points[idxAlongLine][1];
         if (!overlappingStations.includes(stationURL)) {
+          // @ts-ignore
           this.stations[stationIdx].isOverlapping = false
           let x1 = this.startX + stationDist * x;
           let y1 = this.startY + stationDist * y;
+          // @ts-ignore
           this.stations[stationIdx].location = [x1, y1]
           drawStation(x1, y1)
         }
         else {
+          // @ts-ignore
           this.stations[stationIdx].isOverlapping = true
         }
       }
@@ -422,42 +424,6 @@ function drawInfoBox(lineName, stationName) {
   textAlign(LEFT, TOP)
   text(selectedStation.name + ' by ' +selectedStation.owner, boxX + 10, boxY + 10)
   text(selectedStation.url, boxX + 10, boxY + 30);
-  // let a = createA('https://'+url, url, '_blank');
-  // a.position(boxX + 10, boxY + 50);
-}
-
-function drawStationBox() {
-  let [stationX, stationY, name, url, owner] = currentBox
-  removeElements();
-  strokeWeight(hoverWeight);
-  stroke(255);
-  fill(0, 0);
-  circle(stationX, stationY, stationDiameter + hoverWeight);
-  fill(255);
-  let boxW = 300;
-  let boxH = 50;
-  let boxX;
-  let boxY;
-  if (stationX + boxW < width) {
-    boxX = stationX
-  } else {
-    boxX = stationX - boxW
-  }
-  if (stationY + 30 + boxH < height) {
-    boxY = stationY + 30
-  } else {
-    boxY = stationY - boxH - 30
-  }
-  rect(boxX, boxY, 300, 50);
-  noStroke();
-  fill(0);
-  textFont('Consolas')
-  textStyle(BOLD)
-  textAlign(LEFT, TOP)
-  text(name + ' by ' +owner, boxX + 10, boxY + 10)
-  text(url, boxX + 10, boxY + 30);
-  // let a = createA('https://'+url, url, '_blank');
-  // a.position(boxX + 10, boxY + 50);
 }
 
 function keyPressed() {

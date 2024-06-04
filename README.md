@@ -23,6 +23,8 @@ npm install @types/p5
 
 ## Change Log
 
+### 2024-06-04
+- Click to visit works with and without hover (desktop and mobile)
 ### 2024-06-03
 - Added hover to view info in addition to click
 - Identify bug making shared website names problematic
