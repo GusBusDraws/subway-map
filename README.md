@@ -24,8 +24,9 @@ npm install @types/p5
 ## Change Log
 
 ### 2024-06-03
-- Fix bug preventing info boxes from being drawn
+- Added hover to view info in addition to click
 - Identify bug making shared website names problematic
+- Fix bug preventing info boxes from being drawn
 ### 2024-06-01
 - Add SubwayLine.stations properties to hold info like station locations
 ### 2024-05-24

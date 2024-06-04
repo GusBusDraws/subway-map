@@ -132,6 +132,7 @@ function setup() {
 function draw() {
 	background(100);
   drawMap(lines);
+  checkStationHover(lines);
   if (selection != null) {
     console.log('Drawing selection')
     drawInfoBox(selection.lineName, selection.stationName);
@@ -154,30 +155,21 @@ function drawMap(lines) {
 
 function checkStationHover(lines) {
   for (let l of lines) {
-    for (let i = 0; i < l.stationIdcs.length; i++) {
-      let pt = l.points[i]
-      let stationIdx = l.stationIdcs[i]
-      let name = l.names[stationIdx]
-      let url = l.urls[stationIdx]
-      let owner = l.owners[stationIdx]
-      let stationX;
-      let stationY;
-      // Check if station is an overlapping station
-      if (overlappingStations.includes(url)) {
-        let overlapIdx = overlappingStations.indexOf(url);
-        let station = overlapData[overlapIdx];
-        [stationX, stationY] = getOverlappingStationCoord(station)
-      } else {
-        stationX = l.startX + stationDist * pt[0];
-        stationY = l.startY + stationDist * pt[1];
-      }
+    for (let stationIdx = 0; stationIdx < l.stations.length; stationIdx++) {
+      let station = l.stations[stationIdx]
+      let stationX = station.location[0];
+      let stationY = station.location[1];
       let mouseDist = dist(mouseX, mouseY, stationX, stationY);
-      if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
-        onHover(stationX, stationY, name, url, owner);
+      if ((mouseDist < stationDiameter / 2)) {
+        selection = {
+          'lineName' : l.name,
+          'stationName' : station.name
+        }
+        drawInfoBox(selection.lineName, selection.stationName)
         // If mouse is clicked while hovering, open the corresponding url
         if (mouseIsPressed) {
           console.log('Station clicked')
-          window.open('https://'+url);
+          window.open('https://'+station.url);
           mouseIsPressed = false;
           // onStationClick(stationX, stationY, name, url, owner);
           // if (currentBox != null && currentBox[3] === url) {
@@ -226,39 +218,6 @@ function mouseReleased() {
     selection = null;
   }
 }
-  // for (let l of lines) {
-  //   for (let i = 0; i < l.stationIdcs.length; i++) {
-  //     let pt = l.points[i]
-  //     let stationIdx = l.stationIdcs[i]
-  //     let name = l.names[stationIdx]
-  //     let url = l.urls[stationIdx]
-  //     let owner = l.owners[stationIdx]
-  //     let stationX;
-  //     let stationY;
-  //     // Check if station is an overlapping station
-  //     if (overlappingStations.includes(url)) {
-  //       let overlapIdx = overlappingStations.indexOf(url);
-  //       let station = overlapData[overlapIdx];
-  //       [stationX, stationY] = getOverlappingStationCoord(station)
-  //     } else {
-  //       stationX = l.startX + stationDist * pt[0];
-  //       stationY = l.startY + stationDist * pt[1];
-  //     }
-  //     let mouseDist = dist(mouseX, mouseY, stationX, stationY);
-  //     // If mouse is within the radius of a station AND the station index is
-  //     // non-zero, i.e. a station point and not a line point, set the station
-  //     // bow to be drawn by drawStationBox()
-  //     if ((mouseDist < stationDiameter / 2) && (l.stationIdcs[i] >= 0)) {
-  //       onStationClick(stationX, stationY, name, url, owner);
-  //     }
-  //     // I would like this to de-select the station only when the mouse is
-  //     // clicked off station, but it deselects the station before, I think
-  //     // because each click is checked against all the stations
-  //     // else {
-  //     //   offStationClick();
-  //     // }
-  //   }
-  // }
 
 class SubwayLine {
   constructor(propJSON) {
@@ -417,54 +376,6 @@ function getOverlappingStationCoord(station) {
   avgY /= station.points.length
   return [avgX, avgY]
 }
-
-function onHover(stationX, stationY, name, url, owner) {
-  strokeWeight(hoverWeight);
-  stroke(255);
-  fill(0, 0);
-  circle(stationX, stationY, stationDiameter + hoverWeight);
-  fill(255);
-  let boxW = 300;
-  let boxH = 50;
-  let boxX;
-  let boxY;
-  if (stationX + boxW < width) {
-    boxX = stationX
-  } else {
-    boxX = stationX - boxW
-  }
-  if (stationY + 30 + boxH < height) {
-    boxY = stationY + 30
-  } else {
-    boxY = stationY - boxH - 30
-  }
-  rect(boxX, boxY, 300, 50);
-  noStroke();
-  fill(0);
-  textFont('Consolas')
-  textStyle(BOLD)
-  textAlign(LEFT, TOP)
-  text(name + ' by ' +owner, boxX + 10, boxY + 10)
-  text(url, boxX + 10, boxY + 30)
-}
-
-function onStationClick(stationX, stationY, name, url, owner) {
-  if (currentBox != null && currentBox[3] === url) {
-    // BUG: overlapping stations are immediately opened. Instead of this
-    // double click situation, maybe it would be better to open the site when
-    // the box is clicked
-    console.log('Visiting site')
-    window.open('https://'+url)
-  } else {
-    console.log('Setting currentBox')
-    currentBox = [stationX, stationY, name, url, owner];
-  }
-}
-
-function offStationClick() {
-  currentBox = null;
-}
-
 
 function drawInfoBox(lineName, stationName) {
   let selectedLine;
