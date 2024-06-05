@@ -54,6 +54,7 @@ let yellowJSON = [
     "owner" : "Gus Becker"
   }
 ];
+let mapDivWidth
 let stationDiameter = 30;
 let lineWidth = stationDiameter / 2;
 let stationDist = 100;
@@ -66,10 +67,16 @@ let currentBox;
 let selection;
 
 function setup() {
+	// Set up canvas
 	console.log('Starting...');
-	// noLoop();
-	// createCanvas(windowWidth, windowHeight);
-	createCanvas(1000, 500);
+  mapDivWidth = 500
+	let canvas = createCanvas(mapDivWidth, mapDivWidth * 5/8);
+  // Set size parameters based on canvas size
+  stationDiameter = 0.03 * mapDivWidth;
+  lineWidth = stationDiameter / 2;
+  stationDist = 0.1 * mapDivWidth;
+  hoverWeight = stationDiameter / 8;
+  // Initialize subway lines
   greenLine = new SubwayLine(greenJSON);
 	greenLine.name = 'green'
 	greenLine.startX = width / 2 - 4 * stationDist;
@@ -89,9 +96,6 @@ function setup() {
     -1,  5, -1,
     -1
   ]
-  // greenLine.stationNames = [
-  //   'A', 'B', 'C', 'D', 'E'
-  // ]
   // Populate Green Line station names from JSON
   for (let station of greenJSON) {
     greenLine.names.push(station.name)
@@ -117,9 +121,6 @@ function setup() {
     -1,  3, -1,
     -1
   ]
-  // yellowLine.stationNames = [
-  //   'F', 'G', 'H', 'B'
-  // ]
   // Populate Yellow Line station names from JSON
   for (let station of yellowJSON) {
     yellowLine.names.push(station.name)
@@ -136,93 +137,6 @@ function draw() {
   if (selection != null) {
     console.log('Drawing selection')
     drawInfoBox(selection.lineName, selection.stationName);
-  }
-}
-
-function drawMap(lines) {
-  // Draw the line //
-  for (let l of lines) {
-    l.drawLine();
-  }
-  [overlappingStations, overlapData] = checkStationOverlap(lines)
-  // Draw the stations //
-  for (let l of lines) {
-    l.drawStations(overlappingStations);
-  }
-  // Draw overlapping stations //
-  drawOverlappingStations(overlapData)
-}
-
-function checkStationHover(lines) {
-  for (let l of lines) {
-    for (let stationIdx = 0; stationIdx < l.stations.length; stationIdx++) {
-      let station = l.stations[stationIdx]
-      let stationX = station.location[0];
-      let stationY = station.location[1];
-      let mouseDist = dist(mouseX, mouseY, stationX, stationY);
-      if ((mouseDist < stationDiameter / 2)) {
-        selection = {
-          'lineName' : l.name,
-          'stationName' : station.name,
-          'type' : 'hover'
-        }
-        drawInfoBox(selection.lineName, selection.stationName)
-        // If mouse is clicked while hovering, open the corresponding url
-        if (mouseIsPressed) {
-          console.log('Station clicked')
-          window.open('https://'+station.url);
-          mouseIsPressed = false;
-        }
-      } else if (selection != null && selection.type == 'hover') {
-        selection = null
-      }
-    }
-  }
-}
-
-function mouseReleased() {
-  let isFound = false;
-  for (let l of lines) {
-    for (let stationIdx = 0; stationIdx < l.stations.length; stationIdx++) {
-      let station = l.stations[stationIdx]
-      let mouseDist = dist(
-        mouseX, mouseY, station.location[0], station.location[1]
-      );
-      // If mouse is within the radius of a station AND the station index is
-      // non-zero, i.e. a station point and not a line point, set the station
-      // bow to be drawn by drawStationBox()
-      if ((mouseDist < stationDiameter / 2)) {
-        if (selection != null && selection.stationName === station.name) {
-          // let station = getSelectedStation(lines, selection);
-          console.log('Visiting station: '+station.name);
-          window.open('https://'+station.url);
-          mouseIsPressed = false;
-        } else {
-          console.log('Setting selection: ' + station.name)
-          selection = {
-            'lineName' : l.name,
-            'stationName' : station.name,
-            'type' : 'click'
-          }
-          drawInfoBox(l.name, station.name);
-          isFound = true
-        }
-      }
-      if (isFound) {
-        // If marked as found, break out of loop through stations
-        break;
-      }
-    }
-    if (isFound) {
-      // If marked as found, break out of loop through lines
-      break;
-    }
-  }
-  if (!isFound) {
-    // If not marked as found after looping through each station of each line,
-    // set the selection to null. This unselects the last station (or keeps it
-    // unselected) if clicked beyond a station.
-    selection = null;
   }
 }
 
@@ -297,11 +211,31 @@ class SubwayLine {
   }
 }
 
-function drawStation(x, y) {
-  fill(0);
-  circle(x, y, stationDiameter);
-  fill(255);
-  circle(x, y, stationDiameter / 2);
+function checkStationHover(lines) {
+  for (let l of lines) {
+    for (let stationIdx = 0; stationIdx < l.stations.length; stationIdx++) {
+      let station = l.stations[stationIdx]
+      let stationX = station.location[0];
+      let stationY = station.location[1];
+      let mouseDist = dist(mouseX, mouseY, stationX, stationY);
+      if ((mouseDist < stationDiameter / 2)) {
+        selection = {
+          'lineName' : l.name,
+          'stationName' : station.name,
+          'type' : 'hover'
+        }
+        drawInfoBox(selection.lineName, selection.stationName)
+        // If mouse is clicked while hovering, open the corresponding url
+        if (mouseIsPressed) {
+          console.log('Station clicked')
+          window.open('https://'+station.url);
+          mouseIsPressed = false;
+        }
+      } else if (selection != null && selection.type == 'hover') {
+        selection = null
+      }
+    }
+  }
 }
 
 function checkStationOverlap(lines) {
@@ -344,43 +278,6 @@ function checkStationOverlap(lines) {
     }
   }
   return [overlapStationURLs, overlapData]
-}
-
-function getLocationByURL(l, url) {
-  let stationURLIdx = l.urls.indexOf(url)
-  let stationLocIdx = l.stationIdcs.indexOf(stationURLIdx)
-  let stationLoc = l.points[stationLocIdx]
-  let stationCoord = [
-    l.startX + stationDist * stationLoc[0],
-    l.startY + stationDist * stationLoc[1]
-  ]
-  return stationCoord
-}
-
-function drawOverlappingStations(overlapData) {
-  for (let station of overlapData) {
-    let [avgX, avgY] = getOverlappingStationCoord(station);
-    drawStation(avgX, avgY)
-    // Add location of overlapping station to station properties
-    for (let l of lines) {
-      if (station.lines.includes(l.name)) {
-        let stationIdx = l.urls.indexOf(station.url)
-        l.stations[stationIdx].location = [avgX, avgY]
-      }
-    }
-  }
-}
-
-function getOverlappingStationCoord(station) {
-  let avgX = 0;
-  let avgY = 0;
-  for (let pt of station.points) {
-    avgX += pt[0];
-    avgY += pt[1];
-  }
-  avgX /= station.points.length
-  avgY /= station.points.length
-  return [avgX, avgY]
 }
 
 function drawInfoBox(lineName, stationName) {
@@ -426,9 +323,113 @@ function drawInfoBox(lineName, stationName) {
   text(selectedStation.url, boxX + 10, boxY + 30);
 }
 
+function drawMap(lines) {
+  // Draw the line //
+  for (let l of lines) {
+    l.drawLine();
+  }
+  [overlappingStations, overlapData] = checkStationOverlap(lines)
+  // Draw the stations //
+  for (let l of lines) {
+    l.drawStations(overlappingStations);
+  }
+  // Draw overlapping stations //
+  drawOverlappingStations(overlapData)
+}
+
+function drawOverlappingStations(overlapData) {
+  for (let station of overlapData) {
+    let [avgX, avgY] = getOverlappingStationCoord(station);
+    drawStation(avgX, avgY)
+    // Add location of overlapping station to station properties
+    for (let l of lines) {
+      if (station.lines.includes(l.name)) {
+        let stationIdx = l.urls.indexOf(station.url)
+        l.stations[stationIdx].location = [avgX, avgY]
+      }
+    }
+  }
+}
+
+function drawStation(x, y) {
+  fill(0);
+  circle(x, y, stationDiameter);
+  fill(255);
+  circle(x, y, stationDiameter / 2);
+}
+
+function getLocationByURL(l, url) {
+  let stationURLIdx = l.urls.indexOf(url)
+  let stationLocIdx = l.stationIdcs.indexOf(stationURLIdx)
+  let stationLoc = l.points[stationLocIdx]
+  let stationCoord = [
+    l.startX + stationDist * stationLoc[0],
+    l.startY + stationDist * stationLoc[1]
+  ]
+  return stationCoord
+}
+
+function getOverlappingStationCoord(station) {
+  let avgX = 0;
+  let avgY = 0;
+  for (let pt of station.points) {
+    avgX += pt[0];
+    avgY += pt[1];
+  }
+  avgX /= station.points.length
+  avgY /= station.points.length
+  return [avgX, avgY]
+}
+
 function keyPressed() {
   if (key === 's') {
     saveCanvas('smallweb-subway-progress.png')
+  }
+}
+
+function mouseReleased() {
+  let isFound = false;
+  for (let l of lines) {
+    for (let stationIdx = 0; stationIdx < l.stations.length; stationIdx++) {
+      let station = l.stations[stationIdx]
+      let mouseDist = dist(
+        mouseX, mouseY, station.location[0], station.location[1]
+      );
+      // If mouse is within the radius of a station AND the station index is
+      // non-zero, i.e. a station point and not a line point, set the station
+      // bow to be drawn by drawStationBox()
+      if ((mouseDist < stationDiameter / 2)) {
+        if (selection != null && selection.stationName === station.name) {
+          // let station = getSelectedStation(lines, selection);
+          console.log('Visiting station: '+station.name);
+          window.open('https://'+station.url);
+          mouseIsPressed = false;
+        } else {
+          console.log('Setting selection: ' + station.name)
+          selection = {
+            'lineName' : l.name,
+            'stationName' : station.name,
+            'type' : 'click'
+          }
+          drawInfoBox(l.name, station.name);
+          isFound = true
+        }
+      }
+      if (isFound) {
+        // If marked as found, break out of loop through stations
+        break;
+      }
+    }
+    if (isFound) {
+      // If marked as found, break out of loop through lines
+      break;
+    }
+  }
+  if (!isFound) {
+    // If not marked as found after looping through each station of each line,
+    // set the selection to null. This unselects the last station (or keeps it
+    // unselected) if clicked beyond a station.
+    selection = null;
   }
 }
 
