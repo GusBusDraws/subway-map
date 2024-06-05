@@ -305,8 +305,10 @@ function drawInfoBox(lineName, stationName) {
   let boxY;
   if (x + boxW < width) {
     boxX = x
-  } else {
+  } else if (x - boxW > 0) {
     boxX = x - boxW
+  } else {
+    boxX = x - (boxW / 2)
   }
   if (y + 30 + boxH < height) {
     boxY = y + 30
