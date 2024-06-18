@@ -81,7 +81,7 @@ function setup() {
 	greenLine.name = 'green'
 	greenLine.startX = width / 2 - 4 * stationDist;
   greenLine.startY = height / 2 - (4 * stationDist) / 2;
-  greenLine.color = color(0, 255, 0);
+  greenLine.color = color('#25b233');
   greenLine.points = [
     [1, 0], [2, 0], [3, 0],
     [4, 1], [4, 2], [4, 3],
@@ -106,7 +106,7 @@ function setup() {
 	yellowLine.name = 'yellow'
 	yellowLine.startX = width / 2 + lineWidth;
   yellowLine.startY = height / 2 - (4 * stationDist) / 2;
-  yellowLine.color = color(255, 255, 0);
+  yellowLine.color = color('#fad447');
   yellowLine.points = [
     [1, 0], [2, 0], [3, 0],
     [4, 1], [4, 2], [4, 3],
