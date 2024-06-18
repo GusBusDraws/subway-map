@@ -1,4 +1,4 @@
-# p5js-template
+# subway-map
 This is a template for creating new p5 projects. This template is based on
 the p5 + VS Code setup as
 [published by Stef Tervelde and Raphaël de Courville](https://sableraph.notion.site/The-perfect-p5-js-VSCode-setup-for-everyday-creative-coding-414c7eb4fb524da28d53763777d427b8),
@@ -24,6 +24,8 @@ npm install @types/p5
 ## Change Log
 
 ### 2024-06-04
+- Add condition for placing the center of the info box under the station
+- Reorganize functions alphabetically
 - Click to visit works with and without hover (desktop and mobile)
 ### 2024-06-03
 - Added hover to view info in addition to click
