@@ -401,17 +401,28 @@ function mouseReleased() {
       // non-zero, i.e. a station point and not a line point, set the station
       // bow to be drawn by drawStationBox()
       if ((mouseDist < stationDiameter / 2)) {
-        if (selection != null && selection.stationName === station.name) {
-          // let station = getSelectedStation(lines, selection);
+        if (
+          selection != null
+          && selection.stationName === station.name
+          && selection.nclicked >= 3
+        ) {
+          // Only visit station if a double click follows the initial click
           console.log('Visiting station: '+station.name);
           window.open('https://'+station.url);
           mouseIsPressed = false;
+        } else if (
+          selection != null
+          && selection.stationName === station.name
+          && selection.nclicked < 3
+        ) {
+          selection.nclicked ++
         } else {
           console.log('Setting selection: ' + station.name)
           selection = {
             'lineName' : l.name,
             'stationName' : station.name,
-            'type' : 'click'
+            'type' : 'click',
+            'nclicked' : 1
           }
           drawInfoBox(l.name, station.name);
           isFound = true
