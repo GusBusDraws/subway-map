@@ -24,6 +24,7 @@ npm install @types/p5
 ## Change Log
 
 ### 2024-06-18
+- Rename 'sketch.js' -> 'map.js'
 - Link canvas to div with id = 'map'
 - Update yellow to '#fad447'
 - Update green to '#25b233'
