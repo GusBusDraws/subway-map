@@ -23,6 +23,11 @@ npm install @types/p5
 
 ## Change Log
 
+### 2024-06-18
+- Link canvas to div with id = 'map'
+- Update yellow to '#fad447'
+- Update green to '#25b233'
+- Update selection to count number of clicks to test `mousePressed` on mobile
 ### 2024-06-04
 - Add condition for placing the center of the info box under the station
 - Reorganize functions alphabetically

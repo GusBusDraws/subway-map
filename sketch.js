@@ -71,6 +71,7 @@ function setup() {
 	console.log('Starting...');
   mapDivWidth = 500
 	let canvas = createCanvas(mapDivWidth, mapDivWidth * 5/8);
+  canvas.parent('map')
   // Set size parameters based on canvas size
   stationDiameter = 0.03 * mapDivWidth;
   lineWidth = stationDiameter / 2;
