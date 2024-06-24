@@ -44,6 +44,7 @@ let poetryPts = [
 let poetryOffset = [];
 let poetryScale;
 DEBUG = false;
+let selection;
 
 function setup() {
   createCanvas(600, 400);
@@ -120,6 +121,7 @@ function draw() {
     getScaledPt([2, 4], poetryOffset, poetryScale, extraOffsets=[lineWidth/2, 0]),
   ];
   drawStations(stationPts);
+  checkStationHover();
 }
 
 function getScaledPt(pt, offsets, scales, extraOffsets=[0, 0]) {
@@ -162,4 +164,66 @@ function drawStation(x, y) {
   circle(x, y, lineWidth * 2);
   fill(255);
   circle(x, y, lineWidth);
+}
+
+function checkStationHover() {
+  // for (let stationIdx = 0; stationIdx < stationPts.length; stationIdx++) {
+  for (let station of stationPts) {
+    let stationX = station[0];
+    let stationY = station[1];
+    let mouseDist = dist(mouseX, mouseY, stationX, stationY);
+    if ((mouseDist < 2*lineWidth)) {
+      selection = {
+        'lineName' : 'test',
+        'stationName' : 'test',
+        'type' : 'hover'
+      }
+      drawInfoBox(selection.lineName, selection.stationName)
+      // If mouse is clicked while hovering, open the corresponding url
+      if (mouseIsPressed) {
+        console.log('Station clicked')
+        window.open('https://'+station.url);
+        mouseIsPressed = false;
+      }
+    } else if (selection != null && selection.type == 'hover') {
+      selection = null
+    }
+  }
+}
+
+function drawInfoBox(lineName, stationName) {
+  let selectedLine;
+  // let selectedStation = selectedLine.getStationByName(stationName)
+  // let [x, y] = selectedStation.location
+  let x = mouseX
+  let y = mouseY
+  strokeWeight(lineWidth / 2);
+  stroke(255);
+  fill(0, 0);
+  circle(x, y, lineWidth * 2.5);
+  fill(255);
+  let boxW = 300;
+  let boxH = 50;
+  let boxX;
+  let boxY;
+  if (x + boxW < width) {
+    boxX = x
+  } else if (x - boxW > 0) {
+    boxX = x - boxW
+  } else {
+    boxX = x - (boxW / 2)
+  }
+  if (y + 30 + boxH < height) {
+    boxY = y + 30
+  } else {
+    boxY = y - boxH - 30
+  }
+  rect(boxX, boxY, 300, 50);
+  noStroke();
+  fill(0);
+  textFont('Consolas')
+  textStyle(BOLD)
+  textAlign(LEFT, TOP)
+  // text(selectedStation.name + ' by ' +selectedStation.owner, boxX + 10, boxY + 10)
+  // text(selectedStation.url, boxX + 10, boxY + 30);
 }
