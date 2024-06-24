@@ -1,29 +1,35 @@
-let lineWidth = 10
+let lineWidth = 8
 let stationDist;
 let stationPts = [];
+let dcWidth = 7;
+let dcHeight = 7;
 let dcPts = [
-  [1, 0], [4, 0],
-  [5, 1], [5, 4],
-  [4, 5], [1, 5],
-  [1, 5], [0, 4],
+  [1, 0], [dcWidth - 2, 0],
+  [dcWidth - 1, 1], [dcWidth - 1, dcHeight - 2],
+  [dcWidth - 2, dcHeight - 1], [1, dcHeight - 1],
+  [1, dcHeight - 1], [0, dcHeight - 2],
   [0, 1], [1, 0]
 ]
 let dcOffset = [];
 let dcScale;
+let ccWidth = 5;
+let ccHeight = 7;
 let ccPts = [
-  [1, 0], [3, 0],
-  [4, 1], [4, 4],
-  [3, 5], [1, 5],
-  [1, 5], [0, 4],
+  [1, 0], [ccWidth - 2, 0],
+  [ccWidth - 1, 1], [ccWidth - 1, ccHeight - 2],
+  [ccWidth - 2, ccHeight - 1], [1, ccHeight - 1],
+  [1, ccHeight - 1], [0, ccHeight - 2],
   [0, 1], [1, 0]
 ]
 let ccOffset = [];
 let ccScale;
+let comicsWidth = 6;
+let comicsHeight = 7;
 let comicsPts = [
-  [1, 0], [3, 0],
-  [4, 1], [4, 4],
-  [3, 5], [1, 5],
-  [1, 5], [0, 4],
+  [1, 0], [comicsWidth - 3, 0],
+  [comicsWidth - 2, 1], [comicsWidth - 2, comicsHeight - 2],
+  [comicsWidth - 3, comicsHeight - 1], [1, comicsHeight - 1],
+  [1, comicsHeight - 1], [0, comicsHeight - 2],
   [0, 1], [1, 0]
 ]
 let comicsOffset = [];
@@ -37,47 +43,81 @@ let poetryPts = [
 ]
 let poetryOffset = [];
 let poetryScale;
-DEBUG = true;
+DEBUG = false;
 
 function setup() {
   createCanvas(600, 400);
   // stationDist = height / 8;
-  stationDist = height / 10;
+  stationDist = height / 12;
   dcOffset = [width/6, height/4];
-  stationPts.push( [width / 2, height / 2] );
 }
 
 function draw() {
   background(225);
+    //////////////////////////////
+   // Green : Doodle Crew Line //
+  //////////////////////////////
   dcScale = [stationDist, stationDist];
   let [dcScaledX, dcScaledY] = drawLine(dcOffset, dcScale, dcPts, '#25b233');
+    //////////////////////////
+   // Orange : Comics Line //
+  //////////////////////////
+  comicsOffset[0] = (
+    min(dcScaledX)
+    + 4 * (max(dcScaledX) - min(dcScaledX))/(dcWidth - 1)
+    // - lineWidth
+  )
+  comicsOffset[1] = (
+    min(dcScaledY)
+    - 2 * (max(dcScaledY) - min(dcScaledY))/(dcHeight - 1)
+    - lineWidth
+  );
+  comicsScale = [stationDist, stationDist];
+  let [comicsScaledX, comicsScaledY] = drawLine(comicsOffset, comicsScale, comicsPts, '#f7941d');
+    ////////////////////////
+   // Blue : Poetry Line //
+  ////////////////////////
+  poetryOffset[0] = (
+    min(dcScaledX)
+    + 4 * (max(dcScaledX)-min(dcScaledX)) / (dcWidth-1)
+    // - lineWidth
+  );
+  poetryOffset[1] = (
+    min(dcScaledY)
+    + 4 * (max(dcScaledY)-min(dcScaledY)) / (dcHeight-1)
+    // - lineWidth
+  );
+  poetryScale = [stationDist, stationDist];
+  let [poetryScaledX, poetryScaledY] = drawLine(poetryOffset, poetryScale, poetryPts, '#0077c0');
+  // Redraw green to put it over blue
+  [dcScaledX, dcScaledY] = drawLine(dcOffset, dcScale, dcPts, '#25b233');
+    //////////////////////////////////
+   // Yellow : Creatives Club Line //
+  //////////////////////////////////
   ccOffset[0] = max(dcScaledX) + lineWidth;
   ccOffset[1] = dcOffset[1];
   ccScale = [stationDist, stationDist];
   let [ccScaledX, ccScaledY] = drawLine(ccOffset, ccScale, ccPts, '#fad447');
-  comicsOffset[0] = (
-    min(dcScaledX)
-    + 3/5 * (max(dcScaledX) - min(dcScaledX))
-    + lineWidth
-  );
-  comicsOffset[1] = min(dcScaledY) - 2/5 * (max(dcScaledY) - min(dcScaledY));
-  comicsScale = [stationDist, stationDist];
-  let [comicsScaledX, comicsScaledY] = drawLine(comicsOffset, comicsScale, comicsPts, '#f7941d');
-  poetryOffset[0] = (
-    min(dcScaledX)
-    + 3/5 * (max(dcScaledX) - min(dcScaledX))
-    + lineWidth
-  );
-  poetryOffset[1] = (
-    min(dcScaledY)
-    + 3/5 * (max(dcScaledY) - min(dcScaledY))
-    + lineWidth
-  );
-  poetryScale = [stationDist, stationDist];
-  let [poetryScaledX, poetryScaledY] = drawLine(poetryOffset, poetryScale, poetryPts, '#0077c0');
-  // Orange : Comics Line
+    //////////////
+   // Stations //
+  //////////////
   stationPts = [
-    getScaledPt([2, 5], comicsOffset, comicsScale, extraOffsets=[-lineWidth/2, lineWidth/2])
+    // Map
+    getScaledPt([0, 4], ccOffset, ccScale, extraOffsets=[-lineWidth/2, -lineWidth/2]),
+    // Yellow : Creatives Club Line
+    getScaledPt([0, 2], ccOffset, ccScale, extraOffsets=[-lineWidth/2, 0]),
+    getScaledPt([4, 2], ccOffset, ccScale, extraOffsets=[0, 0]),
+    getScaledPt([4, 4], ccOffset, ccScale, extraOffsets=[0, -lineWidth/2]),
+    // Orange : Comics Line
+    getScaledPt([0, 2], comicsOffset, comicsScale, extraOffsets=[0,+lineWidth]),
+    getScaledPt([2, 0], comicsOffset, comicsScale, extraOffsets=[0, 0]),
+    // Green : Doodle Crew Line
+    getScaledPt([2, 0], dcOffset, dcScale, extraOffsets=[0, 0]),
+    getScaledPt([3, 6], dcOffset, dcScale, extraOffsets=[0, 0]),
+    getScaledPt([0, 2], dcOffset, dcScale, extraOffsets=[0, 0]),
+    getScaledPt([0, 4], dcOffset, dcScale, extraOffsets=[0, 0]),
+    // Blue : Poetry Line
+    getScaledPt([2, 4], poetryOffset, poetryScale, extraOffsets=[lineWidth/2, 0]),
   ];
   drawStations(stationPts);
 }

@@ -23,6 +23,7 @@ npm install @types/p5
 
 ## Change Log
 ### 2024-06-24
+- Draw green, yellow, orange, and blue lines with offsets
 - Draw stations based on specified line and simple coordinates
 - Add blue (poetry) and orange (comics) lines
 - Rescale green (Doodle Crew) and yellow (Creatives Club) lines
