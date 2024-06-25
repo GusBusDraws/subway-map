@@ -1,6 +1,6 @@
-let lineWidth = 8
+let lineWidth;
 let stationDist;
-let stationPts = [];
+let stations = [];
 let dcWidth = 7;
 let dcHeight = 7;
 let dcPts = [
@@ -58,10 +58,15 @@ DEBUG = false;
 let selection;
 
 function setup() {
-  createCanvas(600, 400);
+  // let canvas = createCanvas(600, 400);
+  let canvasDiv = document.getElementById('map')
+  let mapDivWidth = canvasDiv.offsetWidth;
+	let canvas = createCanvas(mapDivWidth, mapDivWidth * 2/3);
+  canvas.parent('map')
   // stationDist = height / 8;
   stationDist = height / 12;
   dcOffset = [width/6, height/4];
+  lineWidth = width * 0.015
 }
 
 function draw() {
@@ -127,68 +132,68 @@ function draw() {
     //////////////
    // Stations //
   //////////////
-  stationPts = [
+  stations = [
     // Map
     {
       'title' : 'Smallweb Subway',
       'url' : 'gusbus.space/smallweb-subway/',
-      'author' : 'Gus Becker',
+      'owner' : 'Gus Becker',
       'pt' : getScaledPt([6, 4], dcOffset, dcScale, extraOffsets=[0, -lineWidth/2])
     },
     // Blue : Zines Line
     {
-      "name" : "zines",
+      "title" : "zines",
       "url" : "bumblechub.com/zines/",
       "owner" : "bumblechub",
       "pt" : getScaledPt([2, 4], zinesOffset, zinesScale, extraOffsets=[0, 0])
     },
     {
-      "name" : "Mythical Type Zines",
+      "title" : "Mythical Type Zines",
       "url" : "mythicaltype.com/zines/",
       "owner" : "Mythical Type",
       "pt" : getScaledPt([4, 4], zinesOffset, zinesScale, extraOffsets=[0, 0]),
     },
     // Yellow : Creatives Club Line
     {
-      "name" : "DoodleBot",
+      "title" : "DoodleBot",
       "url" : "gusbus.space/doodlebot/",
       "owner" : "Gus Becker",
       "pt" : getScaledPt([0, 2], ccOffset, ccScale, extraOffsets=[-lineWidth/2, 0])
     },
     {
-      "name" : "Creatives Club",
+      "title" : "Creatives Club",
       "url" : "creativesclub.art/",
       "owner" : "Gus Becker",
       "pt" : getScaledPt([4, 2], ccOffset, ccScale, extraOffsets=[0, 0])
     },
     {
-      "name" : "haystack blog and oddities",
+      "title" : "haystack blog and oddities",
       "url" : "thatoddhaystack.neocities.org/",
       "owner" : "vita",
       "pt" : getScaledPt([4, 4], ccOffset, ccScale, extraOffsets=[0, -lineWidth/2])
     },
     {
-      "name" : "UR LOCAL CYBORG",
+      "title" : "UR LOCAL CYBORG",
       "url" : "urlocalcyb.org/",
       "owner" : "cyborgforty",
       "pt" : getScaledPt([2, 6], ccOffset, ccScale, extraOffsets=[-lineWidth/2, 0])
     },
     // Orange : Comics Line
     {
-      "name" : "Sunday Comics",
+      "title" : "Sunday Comics",
       "url" : "jazz-dude.com/Portfolio/SundayC.html",
       "owner" : "Jazz",
       "pt" : getScaledPt([0, 2], comicsOffset, comicsScale, extraOffsets=[0, lineWidth])
     },
     // Green : Doodle Crew Line
     {
-      "name" : "jazz-dude.com",
+      "title" : "jazz-dude.com",
       "url" : "jazz-dude.com/",
       "owner" : "Jazz",
       "pt" : getScaledPt([2, 6], dcOffset, dcScale, extraOffsets=[0, 0])
     },
     {
-      "name" : "my art 2024",
+      "title" : "my art 2024",
       "url" : "uuupah.neocities.org/art/my-art-2024/",
       "owner" : "uuupah",
       "pt" : getScaledPt([0, 3], dcOffset, dcScale, extraOffsets=[0, 0])
@@ -197,14 +202,17 @@ function draw() {
     // getScaledPt([0, 4], dcOffset, dcScale, extraOffsets=[0, 0]),
     // Red : Poetry Line
     {
-      "name" : "poetry!",
+      "title" : "poetry!",
       "url" : "columbidaecorner.neocities.org/poetry",
       "owner" : "columbidaecorner",
       "pt" : getScaledPt([0, 2], poetryOffset, poetryScale, extraOffsets=[0, 0])
     }
   ];
-  drawStations(stationPts);
+  drawStations(stations);
   checkStationHover();
+  if (selection != null) {
+    drawInfoBox(selection);
+  }
 }
 
 function getScaledPt(pt, offsets, scales, extraOffsets=[0, 0]) {
@@ -235,8 +243,8 @@ function drawLine(offsets, scales, linePts, lineColor) {
   return [scaledX, scaledY];
 }
 
-function drawStations(stationPts) {
-  for (let station of stationPts) {
+function drawStations(stations) {
+  for (let station of stations) {
     drawStation(station.pt[0], station.pt[1])
   }
 }
@@ -250,37 +258,41 @@ function drawStation(x, y) {
 }
 
 function checkStationHover() {
-  // for (let stationIdx = 0; stationIdx < stationPts.length; stationIdx++) {
-  for (let station of stationPts) {
+  // for (let stationIdx = 0; stationIdx < stations.length; stationIdx++) {
+  for (let station of stations) {
     let stationX = station.pt[0];
     let stationY = station.pt[1];
     let mouseDist = dist(mouseX, mouseY, stationX, stationY);
     if ((mouseDist < 2*lineWidth)) {
       selection = {
-        // 'lineName' : station.title,
-        'stationTitle' : station.title,
-        'stationAuthor' : station.author,
+        'title' : station.title,
+        'owner' : station.owner,
+        'url' : station.url,
+        'pt' : station.pt,
         'type' : 'hover'
       }
-      drawInfoBox(selection.stationTitle, selection.stationAuthor)
+      drawInfoBox(selection)
       // If mouse is clicked while hovering, open the corresponding url
-      if (mouseIsPressed) {
+      if (mouseIsPressed && selection.type === 'hover') {
         console.log('Station clicked')
         window.open('https://'+station.url);
         mouseIsPressed = false;
       }
-    } else if (selection != null && selection.type == 'hover') {
-      selection = null
+      break;
+    } else {
+      selection = null;
     }
   }
 }
 
-function drawInfoBox(stationTitle, stationOwner) {
-  let selectedLine;
-  // let selectedStation = selectedLine.getStationByName(stationName)
+function drawInfoBox(selectedStation) {
+  // let selectedStation = selectedLine.getStationBytitle(stationtitle)
   // let [x, y] = selectedStation.location
-  let x = mouseX
-  let y = mouseY
+  let x = selectedStation.pt[0]
+  let y = selectedStation.pt[1]
+  let title = selectedStation.title
+  let owner = selectedStation.owner
+  let url = selectedStation.url
   strokeWeight(lineWidth / 2);
   stroke(255);
   fill(0, 0);
@@ -292,7 +304,7 @@ function drawInfoBox(stationTitle, stationOwner) {
   let boxY;
   if (x + boxW < width) {
     boxX = x
-  } else if (x - boxW > 0) {
+  } else if (x - boxW > 10) {
     boxX = x - boxW
   } else {
     boxX = x - (boxW / 2)
@@ -308,6 +320,32 @@ function drawInfoBox(stationTitle, stationOwner) {
   textFont('Consolas')
   textStyle(BOLD)
   textAlign(LEFT, TOP)
-  text(stationTitle + ' by ' +stationOwner, boxX + 10, boxY + 10)
-  // text(selectedStation.url, boxX + 10, boxY + 30);
+  text(title + ' by ' +owner, boxX + 10, boxY + 10)
+  text(url, boxX + 10, boxY + 30);
+}
+
+function mouseReleased() {
+  let isFound = false;
+  if (selection === undefined || selection.type != 'hover') {
+    for (let station of stations) {
+      let stationX = station.pt[0];
+      let stationY = station.pt[1];
+      let mouseDist = dist(mouseX, mouseY, stationX, stationY);
+      if ((mouseDist < 4*lineWidth)) {
+        selection = {
+          'title' : station.title,
+          'owner' : station.owner,
+          'url' : station.url,
+          'pt' : station.pt,
+          'type' : 'touch'
+        }
+        drawInfoBox(selection)
+        isFound = true;
+        break;
+      }
+    }
+    if (!isFound) {
+      selection = undefined;
+    }
+  }
 }
