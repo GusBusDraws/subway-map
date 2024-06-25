@@ -22,7 +22,11 @@ npm install @types/p5
 ```
 
 ## Change Log
+### 2024-06-25
+- Add sustaining info box on tap without hover
+- Add info box on hover
 ### 2024-06-24
+- Draw red line
 - Draw green, yellow, orange, and blue lines with offsets
 - Draw stations based on specified line and simple coordinates
 - Add blue (poetry) and orange (comics) lines
