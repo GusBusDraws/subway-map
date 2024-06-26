@@ -403,5 +403,6 @@ function touchStarted() {
 }
 
 function drawTimestamp() {
+  fill(0);
   text('debug timestamp: 2024-06-26 18:10:00', lineWidth, lineWidth)
 }
