@@ -56,12 +56,13 @@ let zinesPts = [
 ]
 let zinesOffset = [];
 let zinesScale;
-DEBUG = false;
+let DEBUG = false;
 let selection;
 
 function setup() {
   // let canvas = createCanvas(600, 400);
   let canvasDiv = document.getElementById('map')
+  // @ts-ignore: Object is possibly 'null'.
   let mapDivWidth = canvasDiv.offsetWidth;
 	let canvas = createCanvas(mapDivWidth, mapDivWidth * 2/3);
   canvas.parent('map')
@@ -140,14 +141,14 @@ function draw() {
       'title' : 'Smallweb Subway',
       'url' : 'gusbus.space/smallweb-subway/',
       'owner' : 'Gus Becker',
-      'pt' : getScaledPt([6, 4], dcOffset, dcScale, extraOffsets=[0, -lineWidth/2])
+      'pt' : getScaledPt([6, 4], dcOffset, dcScale, [0, -lineWidth/2])
     },
     // Blue : Zines Line
     {
       "title" : "zines",
       "url" : "bumblechub.com/zines/",
       "owner" : "bumblechub",
-      "pt" : getScaledPt([2, 4], zinesOffset, zinesScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([2, 4], zinesOffset, zinesScale, [0, 0])
     },
     {
       "title" : "Mythical Type Zines",
@@ -264,7 +265,8 @@ function drawLegend() {
   let lineColors = ['#0077c0', '#25b233', '#fad447', '#f7941d', '#e51937'];
   let lineNames = ['Zines', 'Doodle Crew', 'Creatives Club', 'Comics', 'Poetry'];
   let nLines = lineColors.length;
-  textSize(0.02 * width)
+  textSize(0.017 * width)
+  textFont('Consolas')
   textAlign(LEFT, TOP);
   noStroke();
   fill(255);
@@ -324,35 +326,37 @@ function drawInfoBox(selectedStation) {
   fill(0, 0);
   circle(x, y, lineWidth * 2.5);
   fill(255);
-  let boxW = 300;
-  let boxH = 50;
+  let boxW = 26 * lineWidth;
+  let boxH = 5 * lineWidth;
   let boxX;
   let boxY;
   if (x + boxW < width) {
-    boxX = x
+    boxX = x + 1.5*lineWidth
   } else if (x - boxW > 10) {
     boxX = x - boxW
   } else {
     boxX = x - (boxW / 2)
   }
   if (y + 30 + boxH < height) {
-    boxY = y + 30
+    boxY = y + 2.5*lineWidth
   } else {
-    boxY = y - boxH - 30
+    boxY = y - boxH - 2.5*lineWidth
   }
-  rect(boxX, boxY, 300, 50);
+  rect(boxX, boxY, boxW, boxH);
   noStroke();
   fill(0);
+  textSize(0.017 * width)
   textFont('Consolas')
-  textStyle(BOLD)
   textAlign(LEFT, TOP)
-  text(title + ' by ' +owner, boxX + 10, boxY + 10)
-  text(url, boxX + 10, boxY + 30);
+  text(title + ' by ' +owner, boxX + lineWidth, boxY + lineWidth)
+  text(url, boxX + lineWidth, boxY + 3*lineWidth);
 }
 
 function touchStarted() {
   let isFound = false;
-  if (selection === undefined || selection.type != 'hover') {
+  if (selection != undefined && touches.length > 0) {
+
+  } else if (selection === undefined || selection.type != 'hover') {
     for (let station of stations) {
       let stationX = station.pt[0];
       let stationY = station.pt[1];
