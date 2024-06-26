@@ -217,6 +217,7 @@ function draw() {
   if (selection != null) {
     drawInfoBox(selection);
   }
+  drawTimestamp();
 }
 
 function getScaledPt(pt, offsets, scales, extraOffsets=[0, 0]) {
@@ -399,4 +400,8 @@ function touchStarted() {
       selection = undefined;
     }
   }
+}
+
+function drawTimestamp() {
+  text('debug timestamp: 2024-06-26 18:10:00', lineWidth, lineWidth)
 }
