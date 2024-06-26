@@ -1,3 +1,5 @@
+// @ts-check
+/// <reference path="./node_modules/@types/p5/global.d.ts" />
 let lineWidth;
 let stationDist;
 let stations = [];
@@ -54,12 +56,13 @@ let zinesPts = [
 ]
 let zinesOffset = [];
 let zinesScale;
-DEBUG = false;
+let DEBUG = false;
 let selection;
 
 function setup() {
   // let canvas = createCanvas(600, 400);
   let canvasDiv = document.getElementById('map')
+  // @ts-ignore: Object is possibly 'null'.
   let mapDivWidth = canvasDiv.offsetWidth;
 	let canvas = createCanvas(mapDivWidth, mapDivWidth * 2/3);
   canvas.parent('map')
@@ -138,65 +141,65 @@ function draw() {
       'title' : 'Smallweb Subway',
       'url' : 'gusbus.space/smallweb-subway/',
       'owner' : 'Gus Becker',
-      'pt' : getScaledPt([6, 4], dcOffset, dcScale, extraOffsets=[0, -lineWidth/2])
+      'pt' : getScaledPt([6, 4], dcOffset, dcScale, [0, -lineWidth/2])
     },
     // Blue : Zines Line
     {
       "title" : "zines",
       "url" : "bumblechub.com/zines/",
       "owner" : "bumblechub",
-      "pt" : getScaledPt([2, 4], zinesOffset, zinesScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([2, 4], zinesOffset, zinesScale, [0, 0])
     },
     {
       "title" : "Mythical Type Zines",
       "url" : "mythicaltype.com/zines/",
       "owner" : "Mythical Type",
-      "pt" : getScaledPt([4, 4], zinesOffset, zinesScale, extraOffsets=[0, 0]),
+      "pt" : getScaledPt([4, 4], zinesOffset, zinesScale, [0, 0]),
     },
     // Yellow : Creatives Club Line
     {
       "title" : "DoodleBot",
       "url" : "gusbus.space/doodlebot/",
       "owner" : "Gus Becker",
-      "pt" : getScaledPt([0, 2], ccOffset, ccScale, extraOffsets=[-lineWidth/2, 0])
+      "pt" : getScaledPt([0, 2], ccOffset, ccScale, [-lineWidth/2, 0])
     },
     {
       "title" : "Creatives Club",
       "url" : "creativesclub.art/",
       "owner" : "Gus Becker",
-      "pt" : getScaledPt([4, 2], ccOffset, ccScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([4, 2], ccOffset, ccScale, [0, 0])
     },
     {
       "title" : "haystack blog and oddities",
       "url" : "thatoddhaystack.neocities.org/",
       "owner" : "vita",
-      "pt" : getScaledPt([4, 4], ccOffset, ccScale, extraOffsets=[0, -lineWidth/2])
+      "pt" : getScaledPt([4, 4], ccOffset, ccScale, [0, -lineWidth/2])
     },
     {
       "title" : "UR LOCAL CYBORG",
       "url" : "urlocalcyb.org/",
       "owner" : "cyborgforty",
-      "pt" : getScaledPt([2, 6], ccOffset, ccScale, extraOffsets=[-lineWidth/2, 0])
+      "pt" : getScaledPt([2, 6], ccOffset, ccScale, [-lineWidth/2, 0])
     },
     // Orange : Comics Line
     {
       "title" : "Sunday Comics",
       "url" : "jazz-dude.com/Portfolio/SundayC.html",
       "owner" : "Jazz",
-      "pt" : getScaledPt([0, 2], comicsOffset, comicsScale, extraOffsets=[0, lineWidth])
+      "pt" : getScaledPt([0, 2], comicsOffset, comicsScale, [0, lineWidth])
     },
     // Green : Doodle Crew Line
     {
       "title" : "jazz-dude.com",
       "url" : "jazz-dude.com/",
       "owner" : "Jazz",
-      "pt" : getScaledPt([2, 6], dcOffset, dcScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([2, 6], dcOffset, dcScale, [0, 0])
     },
     {
       "title" : "my art 2024",
       "url" : "uuupah.neocities.org/art/my-art-2024/",
       "owner" : "uuupah",
-      "pt" : getScaledPt([0, 3], dcOffset, dcScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([0, 3], dcOffset, dcScale, [0, 0])
     },
     // getScaledPt([0, 2], dcOffset, dcScale, extraOffsets=[0, 0]),
     // getScaledPt([0, 4], dcOffset, dcScale, extraOffsets=[0, 0]),
@@ -205,10 +208,11 @@ function draw() {
       "title" : "poetry!",
       "url" : "columbidaecorner.neocities.org/poetry",
       "owner" : "columbidaecorner",
-      "pt" : getScaledPt([0, 2], poetryOffset, poetryScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([0, 2], poetryOffset, poetryScale, [0, 0])
     }
   ];
   drawStations(stations);
+  drawLegend();
   checkStationHover();
   if (selection != null) {
     drawInfoBox(selection);
@@ -257,6 +261,30 @@ function drawStation(x, y) {
   circle(x, y, lineWidth);
 }
 
+function drawLegend() {
+  let lineColors = ['#0077c0', '#25b233', '#fad447', '#f7941d', '#e51937'];
+  let lineNames = ['Zines', 'Doodle Crew', 'Creatives Club', 'Comics', 'Poetry'];
+  let nLines = lineColors.length;
+  textSize(0.017 * width)
+  textFont('Consolas')
+  textAlign(LEFT, TOP);
+  noStroke();
+  fill(255);
+  let legendWidth = 0.21*width
+  let legendHeight = (2*nLines+1)*lineWidth
+  let legendX = width - legendWidth - lineWidth;
+  let legendY = height - legendHeight - lineWidth;
+  rect(legendX, legendY, legendWidth, legendHeight);
+  for (let i = 0; i < nLines; i++) {
+    let itemX = legendX + lineWidth;
+    let itemY = legendY+(2*i+1)*lineWidth;
+    fill(lineColors[i]);
+    rect(itemX, itemY, 2*lineWidth, lineWidth);
+    fill(0);
+    text(lineNames[i], itemX+3*lineWidth, itemY)
+  }
+}
+
 function checkStationHover() {
   // for (let stationIdx = 0; stationIdx < stations.length; stationIdx++) {
   for (let station of stations) {
@@ -269,64 +297,87 @@ function checkStationHover() {
         'owner' : station.owner,
         'url' : station.url,
         'pt' : station.pt,
-        'type' : 'hover'
+        'type' : 'hover',
+        'boxXMin' : undefined,
+        'boxYMin' : undefined,
+        'boxXMax' : undefined,
+        'boxYMax' : undefined,
       }
       drawInfoBox(selection)
       // If mouse is clicked while hovering, open the corresponding url
-      if (mouseIsPressed && selection.type === 'hover') {
+      if (mouseIsPressed && touches.length == 0) {
         console.log('Station clicked')
         window.open('https://'+station.url);
+        // Needed to insure only one page is opened
         mouseIsPressed = false;
       }
       break;
     } else {
-      selection = null;
+      selection = undefined;
     }
   }
 }
 
-function drawInfoBox(selectedStation) {
+function drawInfoBox(selection) {
   // let selectedStation = selectedLine.getStationBytitle(stationtitle)
   // let [x, y] = selectedStation.location
-  let x = selectedStation.pt[0]
-  let y = selectedStation.pt[1]
-  let title = selectedStation.title
-  let owner = selectedStation.owner
-  let url = selectedStation.url
+  let x = selection.pt[0]
+  let y = selection.pt[1]
+  let title = selection.title
+  let owner = selection.owner
+  let url = selection.url
   strokeWeight(lineWidth / 2);
   stroke(255);
   fill(0, 0);
   circle(x, y, lineWidth * 2.5);
   fill(255);
-  let boxW = 300;
-  let boxH = 50;
+  let boxW = 26 * lineWidth;
+  let boxH = 5 * lineWidth;
   let boxX;
   let boxY;
   if (x + boxW < width) {
-    boxX = x
-  } else if (x - boxW > 10) {
-    boxX = x - boxW
+    boxX = x + 1.5*lineWidth
+  } else if (x - boxW > lineWidth) {
+    boxX = x - boxW - 1.5*lineWidth
   } else {
     boxX = x - (boxW / 2)
   }
   if (y + 30 + boxH < height) {
-    boxY = y + 30
+    boxY = y + 2.5*lineWidth
   } else {
-    boxY = y - boxH - 30
+    boxY = y - boxH - 2.5*lineWidth
   }
-  rect(boxX, boxY, 300, 50);
+  selection.boxXMin = boxX;
+  selection.boxYMin = boxY;
+  selection.boxXMax = boxX + boxW;
+  selection.boxYMax = boxY + boxH;
+  rect(boxX, boxY, boxW, boxH);
   noStroke();
   fill(0);
+  textSize(0.017 * width)
   textFont('Consolas')
-  textStyle(BOLD)
   textAlign(LEFT, TOP)
-  text(title + ' by ' +owner, boxX + 10, boxY + 10)
-  text(url, boxX + 10, boxY + 30);
+  text(title + ' by ' +owner, boxX + lineWidth, boxY + lineWidth)
+  text(url, boxX + lineWidth, boxY + 3*lineWidth);
 }
 
-function mouseReleased() {
+function touchStarted() {
   let isFound = false;
-  if (selection === undefined || selection.type != 'hover') {
+  if (selection != undefined && touches.length > 0) {
+    for (let station of stations) {
+      if (
+        (mouseX > selection.boxXMin && mouseX < selection.boxXMax)
+        && (mouseY > selection.boxYMin && mouseY < selection.boxYMax)
+      ) {
+        console.log('Station clicked')
+        window.open('https://'+station.url);
+        isFound = true;
+        // Needed to insure only one page is opened
+        mouseIsPressed = false;
+        break;
+      }
+    }
+  } else if (selection === undefined || selection.type != 'hover') {
     for (let station of stations) {
       let stationX = station.pt[0];
       let stationY = station.pt[1];
