@@ -299,7 +299,7 @@ function checkStationHover() {
       }
       drawInfoBox(selection)
       // If mouse is clicked while hovering, open the corresponding url
-      if (mouseIsPressed && selection.type == 'hover') {
+      if (mouseIsPressed && touches.length == 0) {
         console.log('Station clicked')
         window.open('https://'+station.url);
         mouseIsPressed = false;
