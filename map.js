@@ -337,8 +337,8 @@ function drawInfoBox(selection) {
   let boxY;
   if (x + boxW < width) {
     boxX = x + 1.5*lineWidth
-  } else if (x - boxW > 10) {
-    boxX = x - boxW
+  } else if (x - boxW > lineWidth) {
+    boxX = x - boxW - 1.5*lineWidth
   } else {
     boxX = x - (boxW / 2)
   }
