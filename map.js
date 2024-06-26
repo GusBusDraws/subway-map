@@ -297,13 +297,18 @@ function checkStationHover() {
         'owner' : station.owner,
         'url' : station.url,
         'pt' : station.pt,
-        'type' : 'hover'
+        'type' : 'hover',
+        'boxXMin' : undefined,
+        'boxYMin' : undefined,
+        'boxXMax' : undefined,
+        'boxYMax' : undefined,
       }
       drawInfoBox(selection)
       // If mouse is clicked while hovering, open the corresponding url
       if (mouseIsPressed && touches.length == 0) {
         console.log('Station clicked')
         window.open('https://'+station.url);
+        // Needed to insure only one page is opened
         mouseIsPressed = false;
       }
       break;
@@ -313,14 +318,14 @@ function checkStationHover() {
   }
 }
 
-function drawInfoBox(selectedStation) {
+function drawInfoBox(selection) {
   // let selectedStation = selectedLine.getStationBytitle(stationtitle)
   // let [x, y] = selectedStation.location
-  let x = selectedStation.pt[0]
-  let y = selectedStation.pt[1]
-  let title = selectedStation.title
-  let owner = selectedStation.owner
-  let url = selectedStation.url
+  let x = selection.pt[0]
+  let y = selection.pt[1]
+  let title = selection.title
+  let owner = selection.owner
+  let url = selection.url
   strokeWeight(lineWidth / 2);
   stroke(255);
   fill(0, 0);
@@ -342,6 +347,10 @@ function drawInfoBox(selectedStation) {
   } else {
     boxY = y - boxH - 2.5*lineWidth
   }
+  selection.boxXMin = boxX;
+  selection.boxYMin = boxY;
+  selection.boxXMax = boxX + boxW;
+  selection.boxYMax = boxY + boxH;
   rect(boxX, boxY, boxW, boxH);
   noStroke();
   fill(0);
@@ -355,7 +364,19 @@ function drawInfoBox(selectedStation) {
 function touchStarted() {
   let isFound = false;
   if (selection != undefined && touches.length > 0) {
-
+    for (let station of stations) {
+      if (
+        (mouseX > selection.boxXMin && mouseX < selection.boxXMax)
+        && (mouseY > selection.boxYMin && mouseY < selection.boxYMax)
+      ) {
+        console.log('Station clicked')
+        window.open('https://'+station.url);
+        isFound = true;
+        // Needed to insure only one page is opened
+        mouseIsPressed = false;
+        break;
+      }
+    }
   } else if (selection === undefined || selection.type != 'hover') {
     for (let station of stations) {
       let stationX = station.pt[0];

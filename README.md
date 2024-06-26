@@ -23,6 +23,8 @@ npm install @types/p5
 
 ## Change Log
 ### 2024-06-26
+- Add logic for clicking info box to visit site
+- Scale info boxes to width
 - Add legend
 - Replace 'mousePressed' function with 'touchStarted' for mobile
 ### 2024-06-25
