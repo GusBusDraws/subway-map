@@ -154,52 +154,52 @@ function draw() {
       "title" : "Mythical Type Zines",
       "url" : "mythicaltype.com/zines/",
       "owner" : "Mythical Type",
-      "pt" : getScaledPt([4, 4], zinesOffset, zinesScale, extraOffsets=[0, 0]),
+      "pt" : getScaledPt([4, 4], zinesOffset, zinesScale, [0, 0]),
     },
     // Yellow : Creatives Club Line
     {
       "title" : "DoodleBot",
       "url" : "gusbus.space/doodlebot/",
       "owner" : "Gus Becker",
-      "pt" : getScaledPt([0, 2], ccOffset, ccScale, extraOffsets=[-lineWidth/2, 0])
+      "pt" : getScaledPt([0, 2], ccOffset, ccScale, [-lineWidth/2, 0])
     },
     {
       "title" : "Creatives Club",
       "url" : "creativesclub.art/",
       "owner" : "Gus Becker",
-      "pt" : getScaledPt([4, 2], ccOffset, ccScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([4, 2], ccOffset, ccScale, [0, 0])
     },
     {
       "title" : "haystack blog and oddities",
       "url" : "thatoddhaystack.neocities.org/",
       "owner" : "vita",
-      "pt" : getScaledPt([4, 4], ccOffset, ccScale, extraOffsets=[0, -lineWidth/2])
+      "pt" : getScaledPt([4, 4], ccOffset, ccScale, [0, -lineWidth/2])
     },
     {
       "title" : "UR LOCAL CYBORG",
       "url" : "urlocalcyb.org/",
       "owner" : "cyborgforty",
-      "pt" : getScaledPt([2, 6], ccOffset, ccScale, extraOffsets=[-lineWidth/2, 0])
+      "pt" : getScaledPt([2, 6], ccOffset, ccScale, [-lineWidth/2, 0])
     },
     // Orange : Comics Line
     {
       "title" : "Sunday Comics",
       "url" : "jazz-dude.com/Portfolio/SundayC.html",
       "owner" : "Jazz",
-      "pt" : getScaledPt([0, 2], comicsOffset, comicsScale, extraOffsets=[0, lineWidth])
+      "pt" : getScaledPt([0, 2], comicsOffset, comicsScale, [0, lineWidth])
     },
     // Green : Doodle Crew Line
     {
       "title" : "jazz-dude.com",
       "url" : "jazz-dude.com/",
       "owner" : "Jazz",
-      "pt" : getScaledPt([2, 6], dcOffset, dcScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([2, 6], dcOffset, dcScale, [0, 0])
     },
     {
       "title" : "my art 2024",
       "url" : "uuupah.neocities.org/art/my-art-2024/",
       "owner" : "uuupah",
-      "pt" : getScaledPt([0, 3], dcOffset, dcScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([0, 3], dcOffset, dcScale, [0, 0])
     },
     // getScaledPt([0, 2], dcOffset, dcScale, extraOffsets=[0, 0]),
     // getScaledPt([0, 4], dcOffset, dcScale, extraOffsets=[0, 0]),
@@ -208,7 +208,7 @@ function draw() {
       "title" : "poetry!",
       "url" : "columbidaecorner.neocities.org/poetry",
       "owner" : "columbidaecorner",
-      "pt" : getScaledPt([0, 2], poetryOffset, poetryScale, extraOffsets=[0, 0])
+      "pt" : getScaledPt([0, 2], poetryOffset, poetryScale, [0, 0])
     }
   ];
   drawStations(stations);
