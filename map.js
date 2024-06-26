@@ -212,7 +212,7 @@ function draw() {
   ];
   drawStations(stations);
   drawLegend();
-  // checkStationHover();
+  checkStationHover();
   if (selection != null) {
     drawInfoBox(selection);
   }
