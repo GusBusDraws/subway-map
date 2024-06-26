@@ -22,6 +22,9 @@ npm install @types/p5
 ```
 
 ## Change Log
+### 2024-06-26
+- Add legend
+- Replace 'mousePressed' function with 'touchStarted' for mobile
 ### 2024-06-25
 - Add sustaining info box on tap without hover
 - Add info box on hover

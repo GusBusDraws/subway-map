@@ -1,3 +1,5 @@
+// @ts-check
+/// <reference path="./node_modules/@types/p5/global.d.ts" />
 let lineWidth;
 let stationDist;
 let stations = [];
@@ -209,7 +211,8 @@ function draw() {
     }
   ];
   drawStations(stations);
-  checkStationHover();
+  drawLegend();
+  // checkStationHover();
   if (selection != null) {
     drawInfoBox(selection);
   }
@@ -257,6 +260,29 @@ function drawStation(x, y) {
   circle(x, y, lineWidth);
 }
 
+function drawLegend() {
+  let lineColors = ['#0077c0', '#25b233', '#fad447', '#f7941d', '#e51937'];
+  let lineNames = ['Zines', 'Doodle Crew', 'Creatives Club', 'Comics', 'Poetry'];
+  let nLines = lineColors.length;
+  textSize(0.02 * width)
+  textAlign(LEFT, TOP);
+  noStroke();
+  fill(255);
+  let legendWidth = 0.21*width
+  let legendHeight = (2*nLines+1)*lineWidth
+  let legendX = width - legendWidth - lineWidth;
+  let legendY = height - legendHeight - lineWidth;
+  rect(legendX, legendY, legendWidth, legendHeight);
+  for (let i = 0; i < nLines; i++) {
+    let itemX = legendX + lineWidth;
+    let itemY = legendY+(2*i+1)*lineWidth;
+    fill(lineColors[i]);
+    rect(itemX, itemY, 2*lineWidth, lineWidth);
+    fill(0);
+    text(lineNames[i], itemX+3*lineWidth, itemY)
+  }
+}
+
 function checkStationHover() {
   // for (let stationIdx = 0; stationIdx < stations.length; stationIdx++) {
   for (let station of stations) {
@@ -273,14 +299,14 @@ function checkStationHover() {
       }
       drawInfoBox(selection)
       // If mouse is clicked while hovering, open the corresponding url
-      if (mouseIsPressed && selection.type === 'hover') {
+      if (mouseIsPressed && selection.type == 'hover') {
         console.log('Station clicked')
         window.open('https://'+station.url);
         mouseIsPressed = false;
       }
       break;
     } else {
-      selection = null;
+      selection = undefined;
     }
   }
 }
@@ -324,7 +350,7 @@ function drawInfoBox(selectedStation) {
   text(url, boxX + 10, boxY + 30);
 }
 
-function mouseReleased() {
+function touchStarted() {
   let isFound = false;
   if (selection === undefined || selection.type != 'hover') {
     for (let station of stations) {
