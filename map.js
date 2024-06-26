@@ -370,7 +370,7 @@ function touchStarted() {
         && (mouseY > selection.boxYMin && mouseY < selection.boxYMax)
       ) {
         console.log('Station clicked')
-        window.open('https://'+station.url);
+        window.open('https://'+selection.url);
         isFound = true;
         // Needed to insure only one page is opened
         mouseIsPressed = false;
